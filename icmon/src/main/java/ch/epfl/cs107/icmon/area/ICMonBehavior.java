@@ -81,7 +81,6 @@ public final class ICMonBehavior extends AreaBehavior {
             this.type = type;
         }
 
-
         @Override
         protected boolean canLeave(Interactable entity) {
             return true;
