@@ -16,9 +16,8 @@ import java.util.Collections;
 import java.util.List;
 
 abstract public class ICMonActor extends MovableAreaEntity{
-    public ICMonActor(Area owner, Orientation orientation, DiscreteCoordinates coordinates) {
+     public ICMonActor(Area owner, Orientation orientation, DiscreteCoordinates coordinates) {
         super(owner, orientation, coordinates);
-
 
 
     }
@@ -27,9 +26,7 @@ abstract public class ICMonActor extends MovableAreaEntity{
      * ???
      //* @param canvas target, not null
      */
-    public void draw() {
-
-    }
+    abstract public void draw();
 
     /**
      * ???

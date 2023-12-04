@@ -1,8 +1,11 @@
 package ch.epfl.cs107.icmon.actor;
 
+import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.play.areagame.actor.MovableAreaEntity;
 import ch.epfl.cs107.play.areagame.area.Area;
 import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
+import ch.epfl.cs107.play.engine.actor.Animation;
+import ch.epfl.cs107.play.engine.actor.OrientedAnimation;
 import ch.epfl.cs107.play.engine.actor.Sprite;
 import ch.epfl.cs107.play.engine.actor.TextGraphics;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
@@ -19,7 +22,7 @@ import java.util.List;
 /**
  * ???
  */
-public final class ICMonPlayer extends MovableAreaEntity {
+public final class ICMonPlayer extends ICMonActor {
 
     /** ??? */
     private final static int MOVE_DURATION = 8;
@@ -47,10 +50,22 @@ public final class ICMonPlayer extends MovableAreaEntity {
         resetMotion();
     }
 
+
+
+    @Override
+    public void draw(Canvas canvas){
+        sprite.draw(canvas);;
+        message.draw(canvas);
+
+
+    }
+     OrientedAnimation animationOrientation = new OrientedAnimation("actors/player",MOVE_DURATION, getOrientation(), this );
+
     /**
      * ???
      * @param deltaTime elapsed time since last update, in seconds, non-negative
      */
+
     @Override
     public void update(float deltaTime) {
         if (hp > 0) {
@@ -70,10 +85,16 @@ public final class ICMonPlayer extends MovableAreaEntity {
      * ???
      * @param canvas target, not null
      */
-    @Override
-    public void draw(Canvas canvas) {
+
+    public void draw(Canvas canvas, Orientation orientation) {
         sprite.draw(canvas);
         message.draw(canvas);
+
+    }
+
+    @Override
+    public void draw() {
+
     }
 
     /**
@@ -82,7 +103,7 @@ public final class ICMonPlayer extends MovableAreaEntity {
      */
     @Override
     public boolean takeCellSpace() {
-        return false;
+        return true;
     }
 
     /**
