@@ -1,5 +1,4 @@
 package ch.epfl.cs107.icmon;
-
 import ch.epfl.cs107.icmon.actor.ICMonPlayer;
 import ch.epfl.cs107.icmon.area.ICMonArea;
 import ch.epfl.cs107.icmon.area.maps.Town;
@@ -7,7 +6,11 @@ import ch.epfl.cs107.play.areagame.AreaGame;
 import ch.epfl.cs107.play.io.FileSystem;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.play.math.Orientation;
+import ch.epfl.cs107.play.window.Keyboard;
 import ch.epfl.cs107.play.window.Window;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  * ???
@@ -54,7 +57,7 @@ public final class ICMon extends AreaGame {
     @Override
     public void update(float deltaTime) {
         // if (player.isWeak())
-        //     switchArea();
+             //switchArea();
         super.update(deltaTime);
     }
 
@@ -82,20 +85,23 @@ public final class ICMon extends AreaGame {
     private void initArea(String areaKey) {
         ICMonArea area = (ICMonArea) setCurrentArea(areaKey, true);
         DiscreteCoordinates coords = area.getPlayerSpawnPosition();
-        player = new ICMonPlayer(area, Orientation.DOWN, coords, "player");
-        // player.enterArea(area, coords);
-        // player.centerCamera();
+        player = new ICMonPlayer(area, Orientation.DOWN, coords, "actors/player");
+        player.enterArea(area, coords);
+        player.centerCamera();
     }
 
     /**
      * ???
      */
     private void switchArea() {
-        // player.leaveArea();
+        player.leaveArea();
         areaIndex = (areaIndex == 0) ? 1 : 0;
         ICMonArea currentArea = (ICMonArea) setCurrentArea(areas[areaIndex], false);
-        // player.enterArea(currentArea, currentArea.getPlayerSpawnPosition());
-        // player.strengthen();
+        player.enterArea(currentArea, currentArea.getPlayerSpawnPosition());
+
     }
+
+
+
 
 }

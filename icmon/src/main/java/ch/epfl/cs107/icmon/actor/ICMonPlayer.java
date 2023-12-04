@@ -1,8 +1,11 @@
 package ch.epfl.cs107.icmon.actor;
 
+import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.play.areagame.actor.MovableAreaEntity;
 import ch.epfl.cs107.play.areagame.area.Area;
 import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
+import ch.epfl.cs107.play.engine.actor.Animation;
+import ch.epfl.cs107.play.engine.actor.OrientedAnimation;
 import ch.epfl.cs107.play.engine.actor.Sprite;
 import ch.epfl.cs107.play.engine.actor.TextGraphics;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
@@ -19,16 +22,28 @@ import java.util.List;
 /**
  * ???
  */
-public final class ICMonPlayer extends MovableAreaEntity {
+public final class ICMonPlayer extends ICMonActor {
 
     /** ??? */
     private final static int MOVE_DURATION = 8;
     /** ??? */
     private final TextGraphics message;
     /** ??? */
+
     private final Sprite sprite;
     /** ??? */
     private float hp;
+
+    private final OrientedAnimation currentAnimation;
+    private final OrientedAnimation landAnimation;
+    private final OrientedAnimation waterAnimation;
+
+
+
+
+
+
+
 
     /**
      * ???
@@ -44,36 +59,64 @@ public final class ICMonPlayer extends MovableAreaEntity {
         message.setParent(this);
         message.setAnchor(new Vector(-0.3f, 0.1f));
         sprite = new Sprite(spriteName, 1.f, 1.f, this);
-        resetMotion();
+        orientation = getOrientation();
+        landAnimation = new OrientedAnimation("actors/player",MOVE_DURATION, orientation, this);
+        waterAnimation = new OrientedAnimation("actors/player_water",MOVE_DURATION, orientation, this);
+        currentAnimation = landAnimation;
+
+
+
+
+
+
+
     }
+
+
+
+    @Override
+    public void draw(Canvas canvas){
+        message.draw(canvas);
+        currentAnimation.draw(canvas);
+
+
+    }
+
 
     /**
      * ???
      * @param deltaTime elapsed time since last update, in seconds, non-negative
      */
+
     @Override
     public void update(float deltaTime) {
-        if (hp > 0) {
-            hp -= deltaTime;
-            message.setText(Integer.toString((int) hp));
-        }
-        if (hp < 0) hp = 0.f;
+
+
         Keyboard keyboard = getOwnerArea().getKeyboard();
+
         moveIfPressed(Orientation.LEFT, keyboard.get(Keyboard.LEFT));
         moveIfPressed(Orientation.UP, keyboard.get(Keyboard.UP));
         moveIfPressed(Orientation.RIGHT, keyboard.get(Keyboard.RIGHT));
         moveIfPressed(Orientation.DOWN, keyboard.get(Keyboard.DOWN));
         super.update(deltaTime);
+
+        if(keyboard.get(Keyboard.LEFT).isDown() || keyboard.get(Keyboard.UP).isDown()
+        || keyboard.get(Keyboard.RIGHT).isDown() ||keyboard.get(Keyboard.DOWN).isDown()){
+            currentAnimation.update(deltaTime);
+            currentAnimation.orientate(getOrientation());
+        } else {
+            currentAnimation.reset();
+        }
+
     }
 
-    /**
-     * ???
-     * @param canvas target, not null
-     */
+
+
+
+
     @Override
-    public void draw(Canvas canvas) {
-        sprite.draw(canvas);
-        message.draw(canvas);
+    public void draw() {
+
     }
 
     /**
@@ -82,7 +125,7 @@ public final class ICMonPlayer extends MovableAreaEntity {
      */
     @Override
     public boolean takeCellSpace() {
-        return false;
+        return true;
     }
 
     /**
@@ -132,8 +175,10 @@ public final class ICMonPlayer extends MovableAreaEntity {
             if (!isDisplacementOccurs()) {
                 orientate(orientation);
                 move(MOVE_DURATION);
+
             }
         }
+
     }
 
     /**
@@ -171,11 +216,7 @@ public final class ICMonPlayer extends MovableAreaEntity {
         getOwnerArea().setViewCandidate(this);
     }
 
-    /**
-     * ???
-     */
-    public void strengthen() {
-        hp = 10;
-    }
+
+
 
 }
