@@ -17,7 +17,7 @@ public final class ICMon extends AreaGame {
     /** ??? */
     public final static float CAMERA_SCALE_FACTOR = 13.f;
     /** ??? */
-    private final String[] areas = {"icmon/Town", "icmon/Town"};
+    private final String[] areas = {"town"};
     /** ??? */
     private ICMonPlayer player;
     /** ??? */
@@ -82,7 +82,7 @@ public final class ICMon extends AreaGame {
     private void initArea(String areaKey) {
         ICMonArea area = (ICMonArea) setCurrentArea(areaKey, true);
         DiscreteCoordinates coords = area.getPlayerSpawnPosition();
-        player = new ICMonPlayer(area, Orientation.DOWN, coords, "ghost.1");
+        player = new ICMonPlayer(area, Orientation.DOWN, coords, "player");
         // player.enterArea(area, coords);
         // player.centerCamera();
     }
