@@ -98,7 +98,11 @@ public final class ICMon extends AreaGame {
         areaIndex = (areaIndex == 0) ? 1 : 0;
         ICMonArea currentArea = (ICMonArea) setCurrentArea(areas[areaIndex], false);
         player.enterArea(currentArea, currentArea.getPlayerSpawnPosition());
+<<<<<<<<< Temporary merge branch 1
+        player.strengthen();
+=========
 
+>>>>>>>>> Temporary merge branch 2
     }
 
 

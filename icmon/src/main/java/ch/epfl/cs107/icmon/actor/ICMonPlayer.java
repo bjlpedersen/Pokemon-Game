@@ -44,7 +44,6 @@ public final class ICMonPlayer extends ICMonActor {
 
 
 
-
     /**
      * ???
      * @param owner ???
@@ -143,7 +142,7 @@ public final class ICMonPlayer extends ICMonActor {
      */
     @Override
     public boolean isViewInteractable() {
-        return true;
+        return false;
     }
 
     /**
