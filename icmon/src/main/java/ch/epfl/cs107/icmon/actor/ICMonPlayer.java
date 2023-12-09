@@ -1,8 +1,13 @@
 package ch.epfl.cs107.icmon.actor;
 
 import ch.epfl.cs107.icmon.actor.ICMonActor;
+import ch.epfl.cs107.icmon.area.ICMonBehavior;
+import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
+import ch.epfl.cs107.play.areagame.actor.Interactable;
+import ch.epfl.cs107.play.areagame.actor.Interactor;
 import ch.epfl.cs107.play.areagame.actor.MovableAreaEntity;
 import ch.epfl.cs107.play.areagame.area.Area;
+import ch.epfl.cs107.play.areagame.area.AreaBehavior;
 import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
 import ch.epfl.cs107.play.engine.actor.Animation;
 import ch.epfl.cs107.play.engine.actor.OrientedAnimation;
@@ -22,25 +27,22 @@ import java.util.List;
 /**
  * ???
  */
-public final class ICMonPlayer extends ICMonActor {
+public final class ICMonPlayer extends ICMonActor implements Interactor, Interactable {
 
     /** ??? */
     private final static int MOVE_DURATION = 8;
     /** ??? */
-    private final TextGraphics message;
+
     /** ??? */
 
     private final Sprite sprite;
     /** ??? */
     private float hp;
+    private ICMonPlayerInteractionHandler handler;
 
-    private final OrientedAnimation currentAnimation;
+    private OrientedAnimation currentAnimation;
     private final OrientedAnimation landAnimation;
     private final OrientedAnimation waterAnimation;
-
-
-
-
 
 
 
@@ -53,30 +55,43 @@ public final class ICMonPlayer extends ICMonActor {
      */
     public ICMonPlayer(Area owner, Orientation orientation, DiscreteCoordinates coordinates, String spriteName) {
         super(owner, orientation, coordinates);
-        this.hp = 10;
-        message = new TextGraphics(Integer.toString((int) hp), 0.4f, Color.BLUE);
-        message.setParent(this);
-        message.setAnchor(new Vector(-0.3f, 0.1f));
         sprite = new Sprite(spriteName, 1.f, 1.f, this);
         orientation = getOrientation();
         landAnimation = new OrientedAnimation("actors/player",MOVE_DURATION, orientation, this);
         waterAnimation = new OrientedAnimation("actors/player_water",MOVE_DURATION, orientation, this);
         currentAnimation = landAnimation;
-
-
-
-
-
+        handler = new ICMonPlayerInteractionHandler();
 
 
     }
+    public class ICMonPlayerInteractionHandler implements ICMonInteractionVisitor {
+
+        public void interactWith(ICMonBehavior.ICMonCell cell, boolean isCellInteraction) {
+            if (isCellInteraction) {
+                ICMonBehavior.AllowedWalkingType walkingType = cell.type.isWalkable;
+                System.out.println("Detected Cell Type: " + cell.type); // Debug output
+
+                if(walkingType==ICMonBehavior.AllowedWalkingType.FEET) {
+                    currentAnimation = landAnimation;
+                    currentAnimation.orientate(getOrientation());
+
+                } else if(walkingType==ICMonBehavior.AllowedWalkingType.SURF){
+                        currentAnimation = landAnimation;
+                        currentAnimation.orientate(getOrientation());
+                    }
+            }
+
+        }
+    }
+
+
 
 
 
     @Override
     public void draw(Canvas canvas){
-        message.draw(canvas);
         currentAnimation.draw(canvas);
+
 
 
     }
@@ -101,11 +116,17 @@ public final class ICMonPlayer extends ICMonActor {
 
         if(keyboard.get(Keyboard.LEFT).isDown() || keyboard.get(Keyboard.UP).isDown()
         || keyboard.get(Keyboard.RIGHT).isDown() ||keyboard.get(Keyboard.DOWN).isDown()){
+
             currentAnimation.update(deltaTime);
             currentAnimation.orientate(getOrientation());
+
+
+
         } else {
             currentAnimation.reset();
+
         }
+
 
     }
 
@@ -153,14 +174,40 @@ public final class ICMonPlayer extends ICMonActor {
         return Collections.singletonList(getCurrentMainCellCoordinates());
     }
 
+    @Override
+    public List<DiscreteCoordinates> getFieldOfViewCells() {
+        return Collections.singletonList(getCurrentMainCellCoordinates().jump(getOrientation().toVector()));
+    }
+
+    @Override
+    public boolean wantsCellInteraction() {
+        return true;
+    }
+
+    @Override
+    public boolean wantsViewInteraction() {
+
+        Keyboard keyboard = getOwnerArea().getKeyboard();
+        if(keyboard.get(Keyboard.L).isDown()){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void interactWith(Interactable other, boolean isCellInteraction) {
+        other.acceptInteraction(handler, isCellInteraction);
+    }
+
     /**
      * ???
      * @param v (AreaInteractionVisitor) : the visitor
      * @param isCellInteraction ???
      */
-    @Override
-    public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
 
+
+    public void acceptInteraction(ICMonInteractionVisitor v, boolean isCellInteraction) {
+        ((ICMonInteractionVisitor) v).interactWith(this, isCellInteraction);
     }
 
     /**

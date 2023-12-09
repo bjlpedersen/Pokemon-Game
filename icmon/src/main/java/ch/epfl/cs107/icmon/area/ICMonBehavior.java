@@ -1,5 +1,6 @@
 package ch.epfl.cs107.icmon.area;
 
+import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.area.AreaBehavior;
 import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
@@ -43,13 +44,15 @@ public final class ICMonBehavior extends AreaBehavior {
         GRASS(-16743680, AllowedWalkingType.FEET)
         ;
 
+
         final int type;
-        final AllowedWalkingType isWalkable;
+        public final AllowedWalkingType isWalkable;
 
         CellType(int type, AllowedWalkingType isWalkable) {
             this.type = type;
             this.isWalkable = isWalkable;
         }
+
 
         public static CellType toType(int type) {
             for (CellType ict : CellType.values()) {
@@ -65,9 +68,9 @@ public final class ICMonBehavior extends AreaBehavior {
     /**
      * Cell adapted to the Tuto2 game
      */
-    public class ICMonCell extends Cell {
+    public class ICMonCell extends Cell implements Interactable {
         /// Type of the cell following the enum
-        private final CellType type;
+        public final CellType type;
 
         /**
          * Default Tuto2Cell Constructor
@@ -108,8 +111,10 @@ public final class ICMonBehavior extends AreaBehavior {
 
         @Override
         public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
+            ((ICMonInteractionVisitor) v).interactWith(this, isCellInteraction);
         }
-    }
+
+        }
 
 }
 
