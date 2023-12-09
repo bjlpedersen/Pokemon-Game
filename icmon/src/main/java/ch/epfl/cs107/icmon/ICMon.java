@@ -6,11 +6,14 @@ import ch.epfl.cs107.play.areagame.AreaGame;
 import ch.epfl.cs107.play.io.FileSystem;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.play.math.Orientation;
+import ch.epfl.cs107.play.window.Button;
 import ch.epfl.cs107.play.window.Keyboard;
 import ch.epfl.cs107.play.window.Window;
+import ch.epfl.cs107.play.window.Keyboard;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.security.Key;
 
 /**
  * ???
@@ -56,10 +59,17 @@ public final class ICMon extends AreaGame {
      */
     @Override
     public void update(float deltaTime) {
-        // if (player.isWeak())
-             //switchArea();
+        //switchArea();
         super.update(deltaTime);
+        Keyboard keyboard = getWindow().getKeyboard();
+        if(keyboard.get(Keyboard.R).isDown()){
+            areaIndex = 0;
+            initArea(areas[areaIndex]);
+
+        }
+
     }
+
 
     /**
      * ???
@@ -98,11 +108,7 @@ public final class ICMon extends AreaGame {
         areaIndex = (areaIndex == 0) ? 1 : 0;
         ICMonArea currentArea = (ICMonArea) setCurrentArea(areas[areaIndex], false);
         player.enterArea(currentArea, currentArea.getPlayerSpawnPosition());
-<<<<<<<<< Temporary merge branch 1
-        player.strengthen();
-=========
 
->>>>>>>>> Temporary merge branch 2
     }
 
 

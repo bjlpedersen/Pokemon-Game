@@ -17,7 +17,7 @@ import java.util.List;
 public final class DiscreteCoordinates implements Serializable {
 
 	private static final long serialVersionUID = 1;
-    public static DiscreteCoordinates ORIGIN = new DiscreteCoordinates(-15, -5);
+    public static DiscreteCoordinates ORIGIN = new DiscreteCoordinates(-5, -5);
     /// A coordinate pair is defined by the x and y graduation
     public final int x, y;
 
