@@ -39,10 +39,6 @@ public class ICBall extends ICMonItem implements Interactable {
 
     @Override
     public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
-
-    }
-
-    public void acceptInteraction(ICMonInteractionVisitor v, boolean isCellInteraction) {
         ((ICMonInteractionVisitor) v).interactWith(this, isCellInteraction);
     }
 
