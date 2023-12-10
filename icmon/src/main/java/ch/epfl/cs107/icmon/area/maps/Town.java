@@ -1,6 +1,9 @@
 package ch.epfl.cs107.icmon.area.maps;
 
 import ch.epfl.cs107.icmon.actor.items.ICBall;
+import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
+import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
+import ch.epfl.cs107.icmon.gamelogic.events.ICMonEvent;
 import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
 import ch.epfl.cs107.play.engine.actor.Background;
 import ch.epfl.cs107.play.engine.actor.Foreground;
@@ -8,13 +11,19 @@ import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.icmon.area.ICMonArea;
 import ch.epfl.cs107.play.window.Canvas;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * ???
  */
 public final class Town extends ICMonArea {
-
+    ArrayList<ICMonEvent> events;
+    CollectItemEvent event;
+    public Town() {
+        super();
+        this.event = event;
+    }
     /**
      * ???
      * @return ???
@@ -31,7 +40,10 @@ public final class Town extends ICMonArea {
     protected void createArea() {
         registerActor(new Background(this));
         registerActor(new Foreground(this));
-        registerActor(new ICBall(this, new DiscreteCoordinates(6,6)));
+        ICBall ball = new ICBall(this, new DiscreteCoordinates(6,6));
+        registerActor(ball);
+        new LogAction("CollectItem event started").perform();
+        event = new CollectItemEvent(ball);
     }
 
     /**
