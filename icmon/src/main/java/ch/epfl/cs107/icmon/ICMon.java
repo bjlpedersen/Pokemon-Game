@@ -70,7 +70,6 @@ public final class ICMon extends AreaGame {
 
     }
 
-
     /**
      * ???
      */

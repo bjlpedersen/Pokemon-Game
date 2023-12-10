@@ -4,6 +4,7 @@ import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.play.areagame.actor.CollectableAreaEntity;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.area.Area;
+import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
 import ch.epfl.cs107.play.engine.actor.RPGSprite;
 import ch.epfl.cs107.play.engine.actor.Sprite;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
@@ -42,7 +43,7 @@ import ch.epfl.cs107.play.window.Canvas;
 
     @Override public boolean takeCellSpace(){return true;}
 
-     public void acceptInteraction(ICMonInteractionVisitor v, boolean isCellInteraction) {
+     public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
          ((ICMonInteractionVisitor) v).interactWith(this, isCellInteraction);
      }
 

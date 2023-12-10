@@ -36,23 +36,22 @@ public final class ICMonBehavior extends AreaBehavior {
         //https://stackoverflow.com/questions/25761438/understanding-bufferedimage-getrgb-output-values
         NULL(0, AllowedWalkingType.NONE),
         WALL(-16777216, AllowedWalkingType.NONE),
-        IMPASSABLE(-8750470, AllowedWalkingType.NONE),
+        BUILDING(-8750470, AllowedWalkingType.NONE),
         INTERACT(-256, AllowedWalkingType.NONE),
         DOOR(-195580, AllowedWalkingType.ALL),
         INDOOR_WALKABLE(-1, AllowedWalkingType.FEET),
+        OUTDOOR_WALKABLE(-14112955, AllowedWalkingType.FEET),
         WATER(-16776961, AllowedWalkingType.SURF),
-        GRASS(-16743680, AllowedWalkingType.FEET)
+        GRASS(-16743680, AllowedWalkingType.FEET);
         ;
 
-
         final int type;
-        public final AllowedWalkingType isWalkable;
+        private final AllowedWalkingType isWalkable;
 
         CellType(int type, AllowedWalkingType isWalkable) {
             this.type = type;
             this.isWalkable = isWalkable;
         }
-
 
         public static CellType toType(int type) {
             for (CellType ict : CellType.values()) {
@@ -84,6 +83,15 @@ public final class ICMonBehavior extends AreaBehavior {
             this.type = type;
         }
 
+        /**
+         * Gets the walking type of the cell.
+         *
+         * @return The AllowedWalkingType of the cell
+         */
+        public AllowedWalkingType getAllowedWalkingType() {
+            return type.isWalkable;
+        }
+
         @Override
         protected boolean canLeave(Interactable entity) {
             return true;
@@ -96,7 +104,7 @@ public final class ICMonBehavior extends AreaBehavior {
                     return false;
                 }
             }
-            return type.isWalkable != AllowedWalkingType.NONE;
+            return true;
         }
 
         @Override
@@ -115,7 +123,6 @@ public final class ICMonBehavior extends AreaBehavior {
         }
 
         }
-
 }
 
 

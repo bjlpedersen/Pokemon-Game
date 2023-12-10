@@ -1,6 +1,7 @@
 package ch.epfl.cs107.icmon.actor;
 
 import ch.epfl.cs107.icmon.actor.ICMonActor;
+import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.area.ICMonBehavior;
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
@@ -39,7 +40,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     /** ??? */
     private float hp;
     private ICMonPlayerInteractionHandler handler;
-
     private OrientedAnimation currentAnimation;
     private final OrientedAnimation landAnimation;
     private final OrientedAnimation waterAnimation;
@@ -68,34 +68,32 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
 
         public void interactWith(ICMonBehavior.ICMonCell cell, boolean isCellInteraction) {
             if (isCellInteraction) {
-                ICMonBehavior.AllowedWalkingType walkingType = cell.type.isWalkable;
-                System.out.println("Detected Cell Type: " + cell.type); // Debug output
+                ICMonBehavior.AllowedWalkingType walkingType = cell.getAllowedWalkingType();
+//                System.out.println("Detected Cell Type: " + walkingType); // Debug output
 
                 if(walkingType==ICMonBehavior.AllowedWalkingType.FEET) {
                     currentAnimation = landAnimation;
                     currentAnimation.orientate(getOrientation());
 
                 } else if(walkingType==ICMonBehavior.AllowedWalkingType.SURF){
-                        currentAnimation = landAnimation;
+                        currentAnimation = waterAnimation;
                         currentAnimation.orientate(getOrientation());
                     }
             }
+        }
 
+        public void interactWith(ICBall ball, boolean wantsViewInteraction){
+            if (wantsViewInteraction) {
+                System.out.println("trying to collect");
+                ball.collect();
+            }
         }
     }
-
-
-
-
 
     @Override
     public void draw(Canvas canvas){
         currentAnimation.draw(canvas);
-
-
-
     }
-
 
     /**
      * ???
@@ -104,8 +102,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
 
     @Override
     public void update(float deltaTime) {
-
-
         Keyboard keyboard = getOwnerArea().getKeyboard();
 
         moveIfPressed(Orientation.LEFT, keyboard.get(Keyboard.LEFT));
@@ -124,19 +120,11 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
 
         } else {
             currentAnimation.reset();
-
         }
-
-
     }
-
-
-
-
 
     @Override
     public void draw() {
-
     }
 
     /**
@@ -186,17 +174,13 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
 
     @Override
     public boolean wantsViewInteraction() {
-
         Keyboard keyboard = getOwnerArea().getKeyboard();
-        if(keyboard.get(Keyboard.L).isDown()){
-            return true;
-        }
-        return false;
+        return keyboard.get(Keyboard.L).isDown();
     }
 
     @Override
     public void interactWith(Interactable other, boolean isCellInteraction) {
-        other.acceptInteraction(handler, isCellInteraction);
+        other.acceptInteraction(handler, true);
     }
 
     /**
@@ -204,7 +188,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
      * @param v (AreaInteractionVisitor) : the visitor
      * @param isCellInteraction ???
      */
-
 
     public void acceptInteraction(ICMonInteractionVisitor v, boolean isCellInteraction) {
         ((ICMonInteractionVisitor) v).interactWith(this, isCellInteraction);

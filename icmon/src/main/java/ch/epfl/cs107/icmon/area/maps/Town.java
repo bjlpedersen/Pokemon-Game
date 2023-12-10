@@ -21,7 +21,7 @@ public final class Town extends ICMonArea {
      */
     @Override
     public DiscreteCoordinates getPlayerSpawnPosition() {
-        return new DiscreteCoordinates(2, 10);
+        return new DiscreteCoordinates(0, 10);
     }
 
     /**
