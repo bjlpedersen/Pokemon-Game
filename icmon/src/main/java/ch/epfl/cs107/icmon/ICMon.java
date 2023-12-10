@@ -48,6 +48,7 @@ public final class ICMon extends AreaGame {
             createAreas();
             areaIndex = 0;
             initArea(areas[areaIndex]);
+
             return true;
         }
         return false;

@@ -3,6 +3,7 @@ package ch.epfl.cs107.icmon.actor;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.area.ICMonBehavior;
+import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.actor.Interactor;
@@ -84,8 +85,8 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
 
         public void interactWith(ICBall ball, boolean wantsViewInteraction){
             if (wantsViewInteraction) {
-                System.out.println("trying to collect");
                 ball.collect();
+                new LogAction("CollectItem event completed").perform();
             }
         }
     }
