@@ -1,8 +1,13 @@
 package ch.epfl.cs107.icmon;
 import ch.epfl.cs107.icmon.actor.ICMonPlayer;
+import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.area.ICMonArea;
 import ch.epfl.cs107.icmon.area.maps.Town;
+import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
+import ch.epfl.cs107.icmon.gamelogic.actions.RegisterinAreaAction;
+import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
 import ch.epfl.cs107.play.areagame.AreaGame;
+import ch.epfl.cs107.play.areagame.area.Area;
 import ch.epfl.cs107.play.io.FileSystem;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.play.math.Orientation;
@@ -14,6 +19,8 @@ import ch.epfl.cs107.play.window.Keyboard;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.security.Key;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ???
@@ -48,7 +55,11 @@ public final class ICMon extends AreaGame {
             createAreas();
             areaIndex = 0;
             initArea(areas[areaIndex]);
-
+            List<CollectItemEvent> events = new ArrayList<>();
+            ICBall ball = new ICBall(getCurrentArea(), new DiscreteCoordinates(6,6));
+            new LogAction("CollectItem event started").perform();
+            new RegisterinAreaAction(getCurrentArea(), ball, "CollectItem event started").register();
+            events.add(new CollectItemEvent(ball, player));
             return true;
         }
         return false;
@@ -66,7 +77,6 @@ public final class ICMon extends AreaGame {
         if(keyboard.get(Keyboard.R).isDown()){
             areaIndex = 0;
             initArea(areas[areaIndex]);
-
         }
 
     }
