@@ -18,12 +18,7 @@ import java.util.List;
  * ???
  */
 public final class Town extends ICMonArea {
-    ArrayList<ICMonEvent> events;
-    CollectItemEvent event;
-    public Town() {
-        super();
-        this.event = event;
-    }
+
     /**
      * ???
      * @return ???
@@ -40,10 +35,6 @@ public final class Town extends ICMonArea {
     protected void createArea() {
         registerActor(new Background(this));
         registerActor(new Foreground(this));
-        ICBall ball = new ICBall(this, new DiscreteCoordinates(6,6));
-        registerActor(ball);
-        new LogAction("CollectItem event started").perform();
-        event = new CollectItemEvent(ball);
     }
 
     /**
