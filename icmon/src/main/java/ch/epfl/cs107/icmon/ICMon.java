@@ -106,19 +106,17 @@ public final class ICMon extends AreaGame {
         //switchArea();
 
         for(ICMonEvent event : completedEvents){
-        if(activeEvents.contains(event)){
-            activeEvents.remove(event);
-        completedEvents.remove(event);
-
-
+            if(event.getCompleted()){
+                activeEvents.remove(event);
+                completedEvents.add(event);
         }
         for(ICMonEvent newEvent : newEvents){
             if(!activeEvents.contains(newEvent)){
                 activeEvents.add(newEvent);
             }
-
-
         }
+        completedEvents.clear();
+        newEvents.clear();
 
     }
         super.update(deltaTime);
