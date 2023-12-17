@@ -14,11 +14,13 @@ public class RegisterinAreaAction implements Action {
         this.area = area;
         this.item = item;
         this.message = message;
+        this.register();
     }
     public RegisterinAreaAction(Area area, ICMonActor actor, String message) {
         this.area = area;
         this.actor = actor;
         this.message = message;
+        this.register();
     }
 
     public void register() {

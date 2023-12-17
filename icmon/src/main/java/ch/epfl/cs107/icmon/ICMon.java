@@ -1,11 +1,15 @@
 package ch.epfl.cs107.icmon;
+import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.ICMonPlayer;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
+import ch.epfl.cs107.icmon.actor.items.ICMonItem;
+import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
 import ch.epfl.cs107.icmon.area.ICMonArea;
 import ch.epfl.cs107.icmon.area.maps.Town;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.gamelogic.actions.RegisterinAreaAction;
 import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
+import ch.epfl.cs107.icmon.gamelogic.events.EndOfTheGameEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.ICMonEvent;
 import ch.epfl.cs107.play.areagame.AreaGame;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
@@ -65,19 +69,37 @@ public final class ICMon extends AreaGame {
     @Override
     public boolean begin(Window window, FileSystem fileSystem) {
         if (super.begin(window, fileSystem)) {
+            eventManager = new ICMonEventManager();
             createAreas();
             areaIndex = 0;
             initArea(areas[areaIndex]);
-            List<CollectItemEvent> events = new ArrayList<>();
             ICBall ball = new ICBall(getCurrentArea(), new DiscreteCoordinates(6,6));
-            new LogAction("CollectItem event started").perform();
-            new RegisterinAreaAction(getCurrentArea(), ball, "CollectItem event started").register();
-            events.add(new CollectItemEvent(ball, player));
-            System.out.println("Ball registered");
+            ICShopAssistant icShopAssistant = new ICShopAssistant(getCurrentArea(), Orientation.DOWN, new DiscreteCoordinates(8, 8));
+            createCollectItemEvent(ball);
+            createEndOfGameEvent(icShopAssistant);
+
             return true;
         }
         
         return false;
+    }
+
+    private void createEndOfGameEvent(ICShopAssistant shopAssistant) {
+        new LogAction("EndOfTheGame event started").perform();
+        RegisterinAreaAction registerEndOfGame = new RegisterinAreaAction(getCurrentArea(), shopAssistant, "EndOfTheGame event started");
+        new EndOfTheGameEvent(player, eventManager, shopAssistant).onStart(registerEndOfGame);
+        new LogAction("EndOfTheGame event registered").perform();
+    }
+
+
+    private void createCollectItemEvent(ICMonItem item){
+        // Creates a ball and registers it in the area
+
+
+        new LogAction("CollectItem event started").perform();
+        RegisterinAreaAction registerCollect = new RegisterinAreaAction(getCurrentArea(), item, "CollectItem event started");
+        new CollectItemEvent(item, eventManager, player).onStart(registerCollect);
+        System.out.println("Ball collection registered");
     }
 
     public class ICMonGameState {
