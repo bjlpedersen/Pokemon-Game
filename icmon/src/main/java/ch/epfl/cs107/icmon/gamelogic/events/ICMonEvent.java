@@ -1,5 +1,6 @@
 package ch.epfl.cs107.icmon.gamelogic.events;
 
+import ch.epfl.cs107.icmon.ICMon;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.gamelogic.actions.Action;
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
@@ -9,13 +10,20 @@ public class ICMonEvent implements ICMonInteractionVisitor {
     boolean completed = false;
     boolean suspended = false;
     ICMonActor mainCharacter;
+    ICMon.ICMonEventManager eventManager;
 
-    public ICMonEvent(ICMonActor mainCharacter) {
+    public ICMonEvent(ICMonActor mainCharacter, ICMon.ICMonEventManager eventManager) {
         this.mainCharacter = mainCharacter;
+        this.eventManager = eventManager;
+
     }
 
-    public boolean hasStarted() {
+    public boolean getStarted() {
         return started;
+    }
+
+    public boolean getCompleted() {
+        return completed;
     }
 
     final void start() {
@@ -47,18 +55,18 @@ public class ICMonEvent implements ICMonInteractionVisitor {
     }
 
     final void onStart(Action action) {
-        // Must add the action to the list of actions to be executed when the event starts
+        new RegisterEventAction(eventManager, this).perform();
     }
 
     final void onComplete(Action action) {
-        // Must add the action to the list of actions to be executed when the event completes
+        new UnregisterEventAction(eventManager, this).perform();
     }
 
     final void onSuspension(Action action) {
-        // Must add the action to the list of actions to be executed when the event is suspended
+        new UnregisterEventAction(eventManager, this).perform();
     }
 
     final void onResume(Action action) {
-        // Must add the action to the list of actions to be executed when the event is resumed
+        new UnregisterEventAction(eventManager, this).perform();
     }
 }
