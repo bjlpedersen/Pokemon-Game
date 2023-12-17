@@ -6,21 +6,22 @@ import ch.epfl.cs107.icmon.area.maps.Town;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.gamelogic.actions.RegisterinAreaAction;
 import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
+import ch.epfl.cs107.icmon.gamelogic.events.ICMonEvent;
 import ch.epfl.cs107.play.areagame.AreaGame;
-import ch.epfl.cs107.play.areagame.area.Area;
+import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.io.FileSystem;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.play.math.Orientation;
 import ch.epfl.cs107.play.window.Button;
 import ch.epfl.cs107.play.window.Keyboard;
 import ch.epfl.cs107.play.window.Window;
-import ch.epfl.cs107.play.window.Keyboard;
-
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 /**
  * ???
@@ -36,11 +37,23 @@ public final class ICMon extends AreaGame {
     /** ??? */
     private int areaIndex;
 
+    private ArrayList<ICMonEvent> activeEvents = new ArrayList<>();
+
+    private ArrayList<ICMonEvent> completedEvents = new ArrayList<>();
+
+    private ArrayList<ICMonEvent> newEvents = new ArrayList<>();
+
+
+    private ICMonGameState gameState;
+
+    private ICMonEventManager eventManager;
+
     /**
      * ???
      */
     private void createAreas() {
         addArea(new Town());
+        System.out.println("Areas created");
     }
 
     /**
@@ -60,10 +73,29 @@ public final class ICMon extends AreaGame {
             new LogAction("CollectItem event started").perform();
             new RegisterinAreaAction(getCurrentArea(), ball, "CollectItem event started").register();
             events.add(new CollectItemEvent(ball, player));
+            System.out.println("Ball registered");
             return true;
         }
+        
         return false;
     }
+
+    public class ICMonGameState {
+        private ICMonGameState(){
+            
+        }
+
+        void acceptInteraction(Interactable interactable, boolean isCellInteraction){
+            for(var event : ICMon.this.activeEvents){
+                interactable.acceptInteraction(event, isCellInteraction);
+            }
+        }
+
+
+    }
+
+
+    
 
     /**
      * ???
@@ -72,13 +104,32 @@ public final class ICMon extends AreaGame {
     @Override
     public void update(float deltaTime) {
         //switchArea();
+
+        for(ICMonEvent event : completedEvents){
+        if(activeEvents.contains(event)){
+            activeEvents.remove(event);
+        completedEvents.remove(event);
+
+
+        }
+        for(ICMonEvent newEvent : newEvents){
+            if(!activeEvents.contains(newEvent)){
+                activeEvents.add(newEvent);
+            }
+
+
+        }
+
+    }
         super.update(deltaTime);
         Keyboard keyboard = getWindow().getKeyboard();
         if(keyboard.get(Keyboard.R).isDown()){
-            areaIndex = 0;
-            initArea(areas[areaIndex]);
+            begin(getWindow(), getFileSystem());
+        
         }
-
+    }
+    public ICMonGameState getGameState(){
+        return gameState;
     }
 
     /**
@@ -105,9 +156,10 @@ public final class ICMon extends AreaGame {
     private void initArea(String areaKey) {
         ICMonArea area = (ICMonArea) setCurrentArea(areaKey, true);
         DiscreteCoordinates coords = area.getPlayerSpawnPosition();
-        player = new ICMonPlayer(area, Orientation.DOWN, coords, "actors/player");
+        player = new ICMonPlayer(this, area, Orientation.DOWN, coords, "actors/player");
         player.enterArea(area, coords);
         player.centerCamera();
+        
     }
 
     /**
@@ -121,6 +173,38 @@ public final class ICMon extends AreaGame {
 
     }
 
+    public class ICMonEventManager{
+
+       public ArrayList <ICMonEvent> getCompletedEvents(){
+              return completedEvents;
+       }
+       public void addCompletedEvents(ICMonEvent event){
+           if (!completedEvents.contains(event))completedEvents.add(event);
+       }
+
+       public void removeCompletedEvents(ICMonEvent event){
+        completedEvents.remove(event);
+       }
+
+       public ArrayList <ICMonEvent> getActiveEvents(){
+        return activeEvents;
+       }
+
+
+       public void addActiveEvent(ICMonEvent event){
+        if(!activeEvents.contains(event))activeEvents.add(event);
+       }
+       public void removeActiveEvent(ICMonEvent event){
+        activeEvents.remove(event);
+       }
+
+       
+
+
+    }
+
+
+    
 
 
 

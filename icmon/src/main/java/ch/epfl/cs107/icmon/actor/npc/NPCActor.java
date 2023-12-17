@@ -10,18 +10,20 @@ import ch.epfl.cs107.play.math.Orientation;
 import ch.epfl.cs107.play.math.RegionOfInterest;
 import ch.epfl.cs107.play.window.Canvas;
 
+import java.awt.Graphics;
 import java.util.Collections;
 import java.util.List;
 
 public class NPCActor extends ICMonActor implements Interactable {
+    Sprite sprite;
 
     public NPCActor(Area area, Orientation orientation, DiscreteCoordinates coordinates, String spriteName) {
         super(area, orientation, coordinates);
-        Sprite sprite = new RPGSprite(spriteName , 1, 1.3125f, this , new RegionOfInterest(0, 0, 16, 21));
+        this.sprite = new RPGSprite(spriteName , 1, 1.3125f, this , new RegionOfInterest(0, 0, 16, 21));
     }
 
     public void draw(Canvas canvas) {
-        this.draw(canvas);
+        sprite.draw(canvas);
     }
 
     public List<DiscreteCoordinates> getCurrentCells() {

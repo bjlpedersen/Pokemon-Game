@@ -1,6 +1,8 @@
 package ch.epfl.cs107.icmon.actor.npc;
 
+import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
+import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.area.Area;
 import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
@@ -13,6 +15,12 @@ public class ICShopAssistant extends NPCActor implements ICMonInteractionVisitor
 
     @Override
     public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
-        ((ICMonInteractionVisitor) v).interactWith(this, isCellInteraction);
+        ((ICMonInteractionVisitor) v).interactWith(this, true);
+    }
+
+    @Override public boolean takeCellSpace(){return true;}
+    @Override
+    public boolean isViewInteractable() {
+        return true;
     }
 }
