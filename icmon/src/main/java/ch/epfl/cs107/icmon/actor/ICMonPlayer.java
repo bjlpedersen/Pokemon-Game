@@ -1,9 +1,12 @@
 package ch.epfl.cs107.icmon.actor;
 
+import ch.epfl.cs107.icmon.ICMon;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
+import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
 import ch.epfl.cs107.icmon.area.ICMonBehavior;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
+import ch.epfl.cs107.icmon.gamelogic.events.EndOfTheGameEvent;
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.actor.Interactor;
@@ -44,7 +47,11 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     private OrientedAnimation currentAnimation;
     private final OrientedAnimation landAnimation;
     private final OrientedAnimation waterAnimation;
-
+    
+    private ICMon.ICMonGameState gameState;
+    private ICMon icMon;
+    
+    
 
 
     /**
@@ -54,13 +61,16 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
      * @param coordinates ???
      * @param spriteName ???
      */
-    public ICMonPlayer(Area owner, Orientation orientation, DiscreteCoordinates coordinates, String spriteName) {
+    public ICMonPlayer(ICMon icMon, Area owner, Orientation orientation, DiscreteCoordinates coordinates, String spriteName) {
         super(owner, orientation, coordinates);
         sprite = new Sprite(spriteName, 1.f, 1.f, this);
         orientation = getOrientation();
         landAnimation = new OrientedAnimation("actors/player",MOVE_DURATION, orientation, this);
         waterAnimation = new OrientedAnimation("actors/player_water",MOVE_DURATION, orientation, this);
         currentAnimation = landAnimation;
+        this.icMon = icMon;
+        
+        ICMon.ICMonGameState gameState = icMon.getGameState(); // get the game state from the ICMon instance
         handler = new ICMonPlayerInteractionHandler();
 
 
@@ -89,6 +99,14 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
                 new LogAction("CollectItem event completed").perform();
             }
         }
+
+        public void interactWith(ICShopAssistant assistant , boolean wantsViewInteraction) {
+            if (wantsViewInteraction()) {
+                //start();
+                new LogAction("This is an interaction between the player and ICShopAssistant based on events").perform();
+                
+        }
+    }
     }
 
     @Override
@@ -110,6 +128,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         moveIfPressed(Orientation.RIGHT, keyboard.get(Keyboard.RIGHT));
         moveIfPressed(Orientation.DOWN, keyboard.get(Keyboard.DOWN));
         super.update(deltaTime);
+        
 
         if(keyboard.get(Keyboard.LEFT).isDown() || keyboard.get(Keyboard.UP).isDown()
         || keyboard.get(Keyboard.RIGHT).isDown() ||keyboard.get(Keyboard.DOWN).isDown()){
@@ -177,11 +196,20 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     public boolean wantsViewInteraction() {
         Keyboard keyboard = getOwnerArea().getKeyboard();
         return keyboard.get(Keyboard.L).isDown();
+        
     }
 
-    @Override
-    public void interactWith(Interactable other, boolean isCellInteraction) {
-        other.acceptInteraction(handler, true);
+     @Override
+        public void interactWith(Interactable other, boolean isCellInteraction) {
+            other.acceptInteraction(handler, isCellInteraction);
+
+        }
+    public void interactWith(ICBall ball, boolean wantsViewInteraction){
+        if(wantsViewInteraction){
+            System.out.println("Interacting with ball");
+            ball.collect();
+            new LogAction("CollectItem event completed").perform();
+        }
     }
 
     /**
@@ -226,6 +254,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     public void enterArea(Area area, DiscreteCoordinates position) {
         area.registerActor(this);
         area.setViewCandidate(this);
+        
         setOwnerArea(area);
         setCurrentPosition(position.toVector());
         resetMotion();
@@ -235,9 +264,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
      * ???
      * @return ???
      */
-    public boolean isWeak() {
-        return (hp <= 0.f);
-    }
 
     /**
      * Center the camera on the player
@@ -245,7 +271,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     public void centerCamera() {
         getOwnerArea().setViewCandidate(this);
     }
-
 
 
 

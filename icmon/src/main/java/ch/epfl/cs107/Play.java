@@ -45,6 +45,8 @@ public class Play {
 
 			if (game.begin(window, fileSystem)) {
 				recorder.start();
+				System.out.println("Game begin");
+				
 
 				// Use system clock to keep track of time progression
                 long currentTime = System.nanoTime();
@@ -71,6 +73,7 @@ public class Play {
 
                     // Let the game do its stuff
                     game.update(deltaTime);
+					
 
                     // Render and update input
                     window.update();
@@ -80,6 +83,7 @@ public class Play {
 			}
 			//recorder.stop("zelda.xml");
 			game.end();
+			System.out.println("Game ended");
 
 		} finally {
 			// Release resources
