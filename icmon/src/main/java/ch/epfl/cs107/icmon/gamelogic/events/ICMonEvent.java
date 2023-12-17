@@ -54,7 +54,7 @@ public class ICMonEvent implements ICMonInteractionVisitor {
         }
     }
 
-    final void onStart(Action action) {
+    public final void onStart(Action action) {
         new RegisterEventAction(eventManager, this).perform();
     }
 
@@ -69,4 +69,10 @@ public class ICMonEvent implements ICMonInteractionVisitor {
     final void onResume(Action action) {
         new UnregisterEventAction(eventManager, this).perform();
     }
+
+    public String getName(){
+        return "ICMonEvent";
+    }
+
+
 }
