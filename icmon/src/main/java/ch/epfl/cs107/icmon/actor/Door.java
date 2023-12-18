@@ -2,6 +2,7 @@ package ch.epfl.cs107.icmon.actor;
 
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.play.areagame.actor.AreaEntity;
+import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.area.Area;
 import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
@@ -14,27 +15,22 @@ import java.util.List;
 
 import ch.epfl.cs107.play.math.Orientation;
 
-public class Door extends AreaEntity implements ICMonInteractionVisitor {
+public class Door extends AreaEntity implements Interactable {
     private Area owner;
     private String destinationArea;
-    private DiscreteCoordinates destinationCoordinates;
+    private DiscreteCoordinates destinationCoordinates; //arrival
     private List<DiscreteCoordinates> occupiedCells;
-    private List<DiscreteCoordinates> additionalCells;
 
     public Door(Area owner,String destinationArea, DiscreteCoordinates destinationCoordinates, DiscreteCoordinates mainCellPosition, DiscreteCoordinates... additionalCells) {
         super(owner, Orientation.UP, mainCellPosition);
         this.destinationArea = destinationArea;
         this.destinationCoordinates = destinationCoordinates;
-        this.occupiedCells = new ArrayList<>();
+        this.occupiedCells = new ArrayList<>(Arrays.asList(additionalCells));
         this.occupiedCells.add(mainCellPosition);
-        if (additionalCells != null) {
-            this.occupiedCells.addAll(Arrays.asList(additionalCells));
-        }
+
     }
 
-
-
-
+    
 
     @Override
     public List<DiscreteCoordinates> getCurrentCells() {
@@ -44,11 +40,11 @@ public class Door extends AreaEntity implements ICMonInteractionVisitor {
 
     @Override
     public boolean isViewInteractable() {
-        return true;
+        return false;
     }
     @Override
     public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
-        ((ICMonInteractionVisitor) v).interactWith(this, true);
+        ((ICMonInteractionVisitor) v).interactWith(this, isCellInteraction);
     }
 
 
