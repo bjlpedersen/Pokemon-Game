@@ -1,10 +1,12 @@
 package ch.epfl.cs107.icmon;
+import ch.epfl.cs107.icmon.actor.Door;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.ICMonPlayer;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.items.ICMonItem;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
 import ch.epfl.cs107.icmon.area.ICMonArea;
+import ch.epfl.cs107.icmon.area.maps.Lab;
 import ch.epfl.cs107.icmon.area.maps.Town;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.gamelogic.actions.RegisterinAreaAction;
@@ -35,7 +37,7 @@ public final class ICMon extends AreaGame {
     /** ??? */
     public final static float CAMERA_SCALE_FACTOR = 13.f;
     /** ??? */
-    private final String[] areas = {"town"};
+    private final String[] areas = {"town", "lab"};
     /** ??? */
     private ICMonPlayer player;
     /** ??? */
@@ -51,13 +53,15 @@ public final class ICMon extends AreaGame {
     private ICMonGameState gameState;
 
     private ICMonEventManager eventManager;
+    
 
     /**
      * ???
      */
     private void createAreas() {
         addArea(new Town());
-        System.out.println("Areas created");
+        addArea(new Lab());
+        
     }
 
     /**
@@ -75,6 +79,7 @@ public final class ICMon extends AreaGame {
             initArea(areas[areaIndex]);
             ICBall ball = new ICBall(getCurrentArea(), new DiscreteCoordinates(6,6));
             ICShopAssistant icShopAssistant = new ICShopAssistant(getCurrentArea(), Orientation.DOWN, new DiscreteCoordinates(8, 8));
+            Door door = new Door(getCurrentArea(), "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15, 24));
             createCollectItemEvent(ball);
             createEndOfGameEvent(icShopAssistant);
 
@@ -125,7 +130,8 @@ public final class ICMon extends AreaGame {
      */
     @Override
     public void update(float deltaTime) {
-        //switchArea();
+
+        
 
         for(ICMonEvent event : completedEvents){
             if(event.getCompleted()){
@@ -137,6 +143,7 @@ public final class ICMon extends AreaGame {
                 activeEvents.add(newEvent);
             }
         }
+
         completedEvents.clear();
         newEvents.clear();
 
@@ -147,6 +154,7 @@ public final class ICMon extends AreaGame {
             begin(getWindow(), getFileSystem());
         
         }
+        
     }
     public ICMonGameState getGameState(){
         return gameState;
@@ -185,7 +193,7 @@ public final class ICMon extends AreaGame {
     /**
      * ???
      */
-    private void switchArea() {
+    public void switchArea() {
         player.leaveArea();
         areaIndex = (areaIndex == 0) ? 1 : 0;
         ICMonArea currentArea = (ICMonArea) setCurrentArea(areas[areaIndex], false);

@@ -107,6 +107,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
                 new LogAction("This is an interaction between the player and ICShopAssistant based on events").perform();
                 
         }
+        
     }
     }
 
@@ -129,6 +130,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         moveIfPressed(Orientation.RIGHT, keyboard.get(Keyboard.RIGHT));
         moveIfPressed(Orientation.DOWN, keyboard.get(Keyboard.DOWN));
         super.update(deltaTime);
+        System.out.println("Player position: " + getCurrentMainCellCoordinates()); // Debug output
         
 
         if(keyboard.get(Keyboard.LEFT).isDown() || keyboard.get(Keyboard.UP).isDown()
@@ -210,6 +212,13 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
             System.out.println("Interacting with ball");
             ball.collect();
             new LogAction("CollectItem event completed").perform();
+        }
+    }
+    public void interactWith(Door door, boolean wantsCellInteraction){
+        if(wantsCellInteraction){
+            System.out.println("Interacting with Door");
+            
+            
         }
     }
 

@@ -1,5 +1,6 @@
 package ch.epfl.cs107.icmon.area.maps;
 
+import ch.epfl.cs107.icmon.actor.Door;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
@@ -27,7 +28,7 @@ public final class Town extends ICMonArea {
      */
     @Override
     public DiscreteCoordinates getPlayerSpawnPosition() {
-        return new DiscreteCoordinates(6, 6);
+        return new DiscreteCoordinates(15, 20);
     }
 
     /**
@@ -38,6 +39,7 @@ public final class Town extends ICMonArea {
         registerActor(new Background(this));
         registerActor(new Foreground(this));
         registerActor(new ICShopAssistant(this, Orientation.DOWN, new DiscreteCoordinates(8, 8)));
+        registerActor(new Door(this, "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15,24)));
     }
 
     /**
