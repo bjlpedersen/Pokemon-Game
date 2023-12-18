@@ -6,7 +6,9 @@ import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
 import ch.epfl.cs107.icmon.area.ICMonBehavior;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
+import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.EndOfTheGameEvent;
+import ch.epfl.cs107.icmon.gamelogic.events.StartEventAction;
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.actor.Interactor;
@@ -95,8 +97,10 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
 
         public void interactWith(ICBall ball, boolean wantsViewInteraction){
             if (wantsViewInteraction) {
+                CollectItemEvent event = new CollectItemEvent(ball, icMon.getEventManager(), ICMonPlayer.this);
                 ball.collect();
                 new LogAction("CollectItem event completed").perform();
+//                event.onComplete(new StartEventAction(icMon.getEventManager(), new EndOfTheGameEvent(ICMonPlayer.this, icMon.getEventManager())));
             }
         }
 
@@ -198,7 +202,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     public boolean wantsViewInteraction() {
         Keyboard keyboard = getOwnerArea().getKeyboard();
         return keyboard.get(Keyboard.L).isDown();
-        
     }
 
      @Override

@@ -66,9 +66,8 @@ public class ICMonEvent implements ICMonInteractionVisitor {
         }
     }
 
-    final void onComplete(ICMonEvent event) {
+    public final void onComplete(StartEventAction action) {
         new UnregisterEventAction(eventManager, this).perform();
-        new RegisterEventAction(eventManager, event).perform();
     }
 
     final void onSuspension(Action action) {

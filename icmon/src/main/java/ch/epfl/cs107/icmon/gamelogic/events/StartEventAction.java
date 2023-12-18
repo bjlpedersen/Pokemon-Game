@@ -9,6 +9,7 @@ public class StartEventAction {
     public StartEventAction(ICMon.ICMonEventManager eventManager, ICMonEvent currentEvent) {
         this.eventManager = eventManager;
         this.currentEvent = currentEvent;
+        this.eventManager.addActiveEvent(currentEvent);
         currentEvent.start();
     }
 

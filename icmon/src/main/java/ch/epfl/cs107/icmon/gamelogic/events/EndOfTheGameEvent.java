@@ -16,9 +16,10 @@ import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
 public class EndOfTheGameEvent extends ICMonEvent {
     private ICShopAssistant shopAssistant;
 
-    public EndOfTheGameEvent(ICMonActor mainCharacter, ICShopAssistant shopAssistant) {
-        super(mainCharacter, ICMon.getEventManager());
+    public EndOfTheGameEvent(ICMonActor mainCharacter, ICMon.ICMonEventManager eventManager, ICShopAssistant shopAssistant) {
+        super(mainCharacter,eventManager);
         this.shopAssistant = shopAssistant;
+        shopAssistant.acceptInteraction(this, true);
     }
 
 

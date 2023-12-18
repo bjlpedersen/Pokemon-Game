@@ -11,6 +11,7 @@ import ch.epfl.cs107.icmon.gamelogic.actions.RegisterinAreaAction;
 import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.EndOfTheGameEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.ICMonEvent;
+import ch.epfl.cs107.icmon.gamelogic.events.StartEventAction;
 import ch.epfl.cs107.play.areagame.AreaGame;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.io.FileSystem;
@@ -79,21 +80,34 @@ public final class ICMon extends AreaGame {
             initArea(areas[areaIndex]);
             ICBall ball = new ICBall(getCurrentArea(), new DiscreteCoordinates(6,6));
             ICShopAssistant icShopAssistant = new ICShopAssistant(getCurrentArea(), Orientation.DOWN, new DiscreteCoordinates(8, 8));
-            CollectItemEvent collectItemEvent = createCollectItemEvent(ball);
-            createEndOfGameEvent(icShopAssistant, collectItemEvent);
+            eventManager.addActiveEvent(createCollectItemEvent(ball));
+            eventManager.addNewEvent(createEndOfGameEvent(icShopAssistant));
+            for (int i = 0; i < activeEvents.size(); i++) {
+                ICMonEvent currentEvent = activeEvents.get(i);
+                ICMonEvent nextEvent;
 
+                if (i < activeEvents.size() - 1) {
+                    nextEvent = activeEvents.get(i + 1);}
+                else {
+                    nextEvent = null;}
+
+                if (nextEvent == null) {
+                    currentEvent.onComplete(new StartEventAction(eventManager, newEvents.get(0)));}
+                else {
+                    currentEvent.onComplete(new StartEventAction(eventManager, nextEvent));
+                }
+
+            }
             return true;
         }
-        
         return false;
     }
 
-    private void createEndOfGameEvent(ICShopAssistant shopAssistant, ICMonEvent otherEvent) {
+    private EndOfTheGameEvent createEndOfGameEvent(ICShopAssistant shopAssistant) {
         // Creates a EndOfTheGame event and registers it in the area
         new LogAction("EndOfTheGame event started").perform();
-        RegisterinAreaAction registerEndOfGame = new RegisterinAreaAction(getCurrentArea(), shopAssistant, "EndOfTheGame event started");
-        new EndOfTheGameEvent(player, eventManager, shopAssistant).onStart(otherEvent);
-        new LogAction("EndOfTheGame event registered").perform();
+        new RegisterinAreaAction(getCurrentArea(), shopAssistant, "EndOfTheGame event started");
+        return new EndOfTheGameEvent(player, eventManager, shopAssistant);
     }
 
 
@@ -103,7 +117,6 @@ public final class ICMon extends AreaGame {
         new RegisterinAreaAction(getCurrentArea(), item, "CollectItem event started");
         CollectItemEvent collectItemEvent = new CollectItemEvent(item, eventManager, player);
         collectItemEvent.onStart();
-        System.out.println("Ball collection registered");
         return collectItemEvent;
     }
 
@@ -135,7 +148,6 @@ public final class ICMon extends AreaGame {
         for(ICMonEvent event : completedEvents){
             if(event.getCompleted()){
                 activeEvents.remove(event);
-                completedEvents.add(event);
         }
         for(ICMonEvent newEvent : newEvents){
             if(!activeEvents.contains(newEvent)){
@@ -200,9 +212,6 @@ public final class ICMon extends AreaGame {
 
     public class ICMonEventManager{
 
-       public ArrayList <ICMonEvent> getCompletedEvents(){
-              return completedEvents;
-       }
        public void addCompletedEvents(ICMonEvent event){
            if (!completedEvents.contains(event))completedEvents.add(event);
        }
@@ -211,11 +220,6 @@ public final class ICMon extends AreaGame {
         completedEvents.remove(event);
        }
 
-       public ArrayList <ICMonEvent> getActiveEvents(){
-        return activeEvents;
-       }
-
-
        public void addActiveEvent(ICMonEvent event){
         if(!activeEvents.contains(event))activeEvents.add(event);
        }
@@ -223,6 +227,9 @@ public final class ICMon extends AreaGame {
         activeEvents.remove(event);
        }
 
+       public void addNewEvent(ICMonEvent event){
+        newEvents.add(event);
+       }
        
 
 
