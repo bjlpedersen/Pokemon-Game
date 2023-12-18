@@ -1,4 +1,5 @@
 package ch.epfl.cs107.icmon;
+import ch.epfl.cs107.icmon.ICMon.GamePlayMessage.PassDoorMessage;
 import ch.epfl.cs107.icmon.actor.Door;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.ICMonPlayer;
@@ -13,7 +14,6 @@ import ch.epfl.cs107.icmon.gamelogic.actions.RegisterinAreaAction;
 import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.EndOfTheGameEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.ICMonEvent;
-import ch.epfl.cs107.icmon.gamelogic.events.StartEventAction;
 import ch.epfl.cs107.play.areagame.AreaGame;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.io.FileSystem;
@@ -38,7 +38,7 @@ public final class ICMon extends AreaGame {
     /** ??? */
     public final static float CAMERA_SCALE_FACTOR = 13.f;
     /** ??? */
-    private final String[] areas = {"town"};
+    private final String[] areas = {"town", "lab"};
     /** ??? */
     private ICMonPlayer player;
     /** ??? */
@@ -55,9 +55,8 @@ public final class ICMon extends AreaGame {
 
     private ICMonEventManager eventManager;
 
-    public ICMonEventManager getEventManager(){
-        return eventManager;
-    }
+    private GamePlayMessage gamePlayMessage;
+    
 
     /**
      * ???
@@ -65,7 +64,7 @@ public final class ICMon extends AreaGame {
     private void createAreas() {
         addArea(new Town());
         addArea(new Lab());
-
+        
     }
 
     /**
@@ -80,66 +79,84 @@ public final class ICMon extends AreaGame {
             eventManager = new ICMonEventManager();
             createAreas();
             areaIndex = 0;
+            gameState = new ICMonGameState();
+            gamePlayMessage = new GamePlayMessage();
             initArea(areas[areaIndex]);
             ICBall ball = new ICBall(getCurrentArea(), new DiscreteCoordinates(6,6));
             ICShopAssistant icShopAssistant = new ICShopAssistant(getCurrentArea(), Orientation.DOWN, new DiscreteCoordinates(8, 8));
-            eventManager.addActiveEvent(createCollectItemEvent(ball));
-            eventManager.addNewEvent(createEndOfGameEvent(icShopAssistant));
-            for (int i = 0; i < activeEvents.size(); i++) {
-                ICMonEvent currentEvent = activeEvents.get(i);
-                ICMonEvent nextEvent;
-
-                if (i < activeEvents.size() - 1) {
-                    nextEvent = activeEvents.get(i + 1);}
-                else {
-                    nextEvent = null;}
             Door door = new Door(getCurrentArea(), "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15, 24));
             createCollectItemEvent(ball);
+
             createEndOfGameEvent(icShopAssistant);
 
-                if (nextEvent == null) {
-                    currentEvent.onComplete(new StartEventAction(eventManager, newEvents.get(0)));}
-                else {
-                    currentEvent.onComplete(new StartEventAction(eventManager, nextEvent));
-                }
-
-            }
             return true;
         }
         
         return false;
     }
 
-    private EndOfTheGameEvent createEndOfGameEvent(ICShopAssistant shopAssistant) {
-        // Creates a EndOfTheGame event and registers it in the area
+    public class GamePlayMessage {
+        public void process(){
+
+
+        }
+        public PassDoorMessage createPassDoorMessage(Door door){
+            return new PassDoorMessage(door);
+            
+        }
+        public class PassDoorMessage extends GamePlayMessage {
+            private String area;
+            private DiscreteCoordinates coordinates;
+        
+            public PassDoorMessage(Door door){
+                area = door.getDestinationArea();
+                coordinates = door.getDestinationCoordinates()
+                ;
+            }
+        
+            @Override
+            public void process(){
+                switchArea(area, coordinates);
+                
+            }
+        }
+    }
+
+    private void createEndOfGameEvent(ICShopAssistant shopAssistant) {
         new LogAction("EndOfTheGame event started").perform();
-        new RegisterinAreaAction(getCurrentArea(), shopAssistant, "EndOfTheGame event started");
-        return new EndOfTheGameEvent(player, eventManager, shopAssistant);
+        RegisterinAreaAction registerEndOfGame = new RegisterinAreaAction(getCurrentArea(), shopAssistant, "EndOfTheGame event started");
+        new EndOfTheGameEvent(player, eventManager, shopAssistant).onStart(registerEndOfGame);
+        new LogAction("EndOfTheGame event registered").perform();
     }
 
 
-    private CollectItemEvent createCollectItemEvent(ICMonItem item){
-        // Creates a CollectItem event and registers it in the area
+    private void createCollectItemEvent(ICMonItem item){
+        // Creates a ball and registers it in the area
+
+
         new LogAction("CollectItem event started").perform();
-        new RegisterinAreaAction(getCurrentArea(), item, "CollectItem event started");
-        CollectItemEvent collectItemEvent = new CollectItemEvent(item, eventManager, player);
-        collectItemEvent.onStart();
-        return collectItemEvent;
+        RegisterinAreaAction registerCollect = new RegisterinAreaAction(getCurrentArea(), item, "CollectItem event started");
+        new CollectItemEvent(item, eventManager, player).onStart(registerCollect);
+        System.out.println("Ball collection registered");
     }
 
     public class ICMonGameState {
-        private ICMonGameState(){
+        public ICMonGameState(){
             
         }
 
-        void acceptInteraction(Interactable interactable, boolean isCellInteraction){
+        public void acceptInteraction(Interactable interactable, boolean isCellInteraction){
             for(var event : ICMon.this.activeEvents){
                 interactable.acceptInteraction(event, isCellInteraction);
             }
         }
+        public void send(GamePlayMessage message) {
+            message.process();
+        }
 
 
     }
+    
 
 
     
@@ -150,7 +167,8 @@ public final class ICMon extends AreaGame {
      */
     @Override
     public void update(float deltaTime) {
-        //switchArea();
+
+        
 
         for(ICMonEvent event : completedEvents){
             if(event.getCompleted()){
@@ -162,8 +180,10 @@ public final class ICMon extends AreaGame {
                 activeEvents.add(newEvent);
             }
         }
+
         completedEvents.clear();
         newEvents.clear();
+        gamePlayMessage.process();
 
     }
         super.update(deltaTime);
@@ -172,6 +192,7 @@ public final class ICMon extends AreaGame {
             begin(getWindow(), getFileSystem());
         
         }
+        
     }
     public ICMonGameState getGameState(){
         return gameState;
@@ -210,11 +231,10 @@ public final class ICMon extends AreaGame {
     /**
      * ???
      */
-    private void switchArea() {
+    public void switchArea(String s, DiscreteCoordinates d) {
         player.leaveArea();
-        areaIndex = (areaIndex == 0) ? 1 : 0;
-        ICMonArea currentArea = (ICMonArea) setCurrentArea(areas[areaIndex], false);
-        player.enterArea(currentArea, currentArea.getPlayerSpawnPosition());
+        ICMonArea currentArea = (ICMonArea) setCurrentArea(s, false);
+        player.enterArea(currentArea, d);
 
     }
 
@@ -243,10 +263,7 @@ public final class ICMon extends AreaGame {
         activeEvents.remove(event);
        }
 
-       public void addNewEvent(ICMonEvent event){
-        newEvents.add(event);
-       }
-
+       
 
 
     }

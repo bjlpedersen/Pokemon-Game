@@ -50,5 +50,7 @@ public final class Town extends ICMonArea {
     public String getTitle() {
         return "town";
     }
-
+    @Override
+    public void update(float deltaTime){super.update(deltaTime);}
 }
+
