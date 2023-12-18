@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * ???
  */
-public final class Town extends ICMonArea {
+public final class Lab extends ICMonArea {
 
     /**
      * ???
@@ -28,7 +28,7 @@ public final class Town extends ICMonArea {
      */
     @Override
     public DiscreteCoordinates getPlayerSpawnPosition() {
-        return new DiscreteCoordinates(15, 20);
+        return new DiscreteCoordinates(15, 24);
     }
 
     /**
@@ -38,8 +38,8 @@ public final class Town extends ICMonArea {
     protected void createArea() {
         registerActor(new Background(this));
         registerActor(new Foreground(this));
-        registerActor(new ICShopAssistant(this, Orientation.DOWN, new DiscreteCoordinates(8, 8)));
-        registerActor(new Door(this, "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15,24)));
+        registerActor(new Door(this, "town", new DiscreteCoordinates(15,23), new DiscreteCoordinates(6,1)));
+
     }
 
     /**
@@ -48,7 +48,7 @@ public final class Town extends ICMonArea {
      */
     @Override
     public String getTitle() {
-        return "town";
+        return "lab";
     }
 
 }

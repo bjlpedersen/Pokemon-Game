@@ -1,10 +1,12 @@
 package ch.epfl.cs107.icmon;
+import ch.epfl.cs107.icmon.actor.Door;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.ICMonPlayer;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.items.ICMonItem;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
 import ch.epfl.cs107.icmon.area.ICMonArea;
+import ch.epfl.cs107.icmon.area.maps.Lab;
 import ch.epfl.cs107.icmon.area.maps.Town;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.gamelogic.actions.RegisterinAreaAction;
@@ -62,7 +64,8 @@ public final class ICMon extends AreaGame {
      */
     private void createAreas() {
         addArea(new Town());
-        System.out.println("Areas created");
+        addArea(new Lab());
+
     }
 
     /**
@@ -90,6 +93,9 @@ public final class ICMon extends AreaGame {
                     nextEvent = activeEvents.get(i + 1);}
                 else {
                     nextEvent = null;}
+            Door door = new Door(getCurrentArea(), "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15, 24));
+            createCollectItemEvent(ball);
+            createEndOfGameEvent(icShopAssistant);
 
                 if (nextEvent == null) {
                     currentEvent.onComplete(new StartEventAction(eventManager, newEvents.get(0)));}
@@ -100,6 +106,7 @@ public final class ICMon extends AreaGame {
             }
             return true;
         }
+        
         return false;
     }
 
@@ -148,6 +155,7 @@ public final class ICMon extends AreaGame {
         for(ICMonEvent event : completedEvents){
             if(event.getCompleted()){
                 activeEvents.remove(event);
+                completedEvents.add(event);
         }
         for(ICMonEvent newEvent : newEvents){
             if(!activeEvents.contains(newEvent)){
@@ -212,6 +220,9 @@ public final class ICMon extends AreaGame {
 
     public class ICMonEventManager{
 
+       public ArrayList <ICMonEvent> getCompletedEvents(){
+              return completedEvents;
+       }
        public void addCompletedEvents(ICMonEvent event){
            if (!completedEvents.contains(event))completedEvents.add(event);
        }
@@ -219,6 +230,11 @@ public final class ICMon extends AreaGame {
        public void removeCompletedEvents(ICMonEvent event){
         completedEvents.remove(event);
        }
+
+       public ArrayList <ICMonEvent> getActiveEvents(){
+        return activeEvents;
+       }
+
 
        public void addActiveEvent(ICMonEvent event){
         if(!activeEvents.contains(event))activeEvents.add(event);
@@ -230,7 +246,7 @@ public final class ICMon extends AreaGame {
        public void addNewEvent(ICMonEvent event){
         newEvents.add(event);
        }
-       
+
 
 
     }

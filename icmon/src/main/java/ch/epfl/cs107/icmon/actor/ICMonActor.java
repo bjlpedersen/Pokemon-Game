@@ -16,8 +16,15 @@ import java.util.Collections;
 import java.util.List;
 
 abstract public class ICMonActor extends MovableAreaEntity{
+    //private final Sprite sprite;
+    private String spriteName;
      public ICMonActor(Area owner, Orientation orientation, DiscreteCoordinates coordinates) {
         super(owner, orientation, coordinates);
+       /* if(spriteName != null){
+            sprite = new Sprite(spriteName, 1.f, 1.f, this);
+        } else {
+            sprite = null;
+        }*/
 
 
     }
@@ -26,7 +33,9 @@ abstract public class ICMonActor extends MovableAreaEntity{
      * ???
      //* @param canvas target, not null
      */
-    abstract public void draw();
+    public void draw(){
+
+    }
 
     /**
      * ???
