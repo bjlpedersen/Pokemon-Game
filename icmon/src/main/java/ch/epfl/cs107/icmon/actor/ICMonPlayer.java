@@ -1,6 +1,7 @@
 package ch.epfl.cs107.icmon.actor;
-
 import ch.epfl.cs107.icmon.ICMon;
+import ch.epfl.cs107.icmon.ICMon.GamePlayMessage;
+import ch.epfl.cs107.icmon.ICMon.GamePlayMessage.PassDoorMessage;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
@@ -24,6 +25,7 @@ import ch.epfl.cs107.play.math.Vector;
 import ch.epfl.cs107.play.window.Button;
 import ch.epfl.cs107.play.window.Canvas;
 import ch.epfl.cs107.play.window.Keyboard;
+import ch.epfl.cs107.play.engine.actor.Dialog;
 
 import java.awt.*;
 import java.util.Collections;
@@ -39,7 +41,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     /** ??? */
 
     /** ??? */
-
+    private boolean isInDialog = false;
     private final Sprite sprite;
     /** ??? */
     private float hp;
@@ -50,6 +52,9 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     
     private ICMon.ICMonGameState gameState;
     private ICMon icMon;
+    PassDoorMessage passDoorMessage;
+    GamePlayMessage gamePlayMessage;
+    private Dialog dialog;
     
     
 
@@ -68,9 +73,10 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         landAnimation = new OrientedAnimation("actors/player",MOVE_DURATION, orientation, this);
         waterAnimation = new OrientedAnimation("actors/player_water",MOVE_DURATION, orientation, this);
         currentAnimation = landAnimation;
+
         this.icMon = icMon;
         
-        ICMon.ICMonGameState gameState = icMon.getGameState(); // get the game state from the ICMon instance
+        this.gameState = icMon.getGameState(); // get the game state from the ICMon instance
         handler = new ICMonPlayerInteractionHandler();
 
 
@@ -93,58 +99,81 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
             }
         }
 
+
+
         public void interactWith(ICBall ball, boolean wantsViewInteraction){
             if (wantsViewInteraction) {
                 ball.collect();
+                new Dialog("collect_item_event_interaction_with_icshopassistant");
                 new LogAction("CollectItem event completed").perform();
             }
         }
 
         public void interactWith(ICShopAssistant assistant , boolean wantsViewInteraction) {
             if (wantsViewInteraction()) {
+                isInDialog = true;
+                dialog = new Dialog("end_of_game_event_interaction_with_icshopassistant");
                 //start();
-//                new EndOfTheGameEvent(ICMonPlayer.this, assistant).acceptInteraction(handler, wantsViewInteraction);
-                new LogAction("This is an interaction between the player and ICShopAssistant based on events").perform();
+//               
+                //new LogAction("This is an interaction between the player and ICShopAssistant based on events").perform();
                 
         }
         
     }
+    @Override
+public void interactWith(Door door, boolean isCellInteraction) {
+    if (isCellInteraction) {
+        ICMon.GamePlayMessage message = gamePlayMessage.createPassDoorMessage(door);
+        gameState.send(message);
+    }
+}
     }
 
+
+
+
     @Override
-    public void draw(Canvas canvas){
-        currentAnimation.draw(canvas);
+public void draw(Canvas canvas){
+    currentAnimation.draw(canvas);
+    if(isInDialog){
+        dialog.draw(canvas);
     }
+}
 
     /**
      * ???
      * @param deltaTime elapsed time since last update, in seconds, non-negative
      */
 
-    @Override
-    public void update(float deltaTime) {
-        Keyboard keyboard = getOwnerArea().getKeyboard();
-
-        moveIfPressed(Orientation.LEFT, keyboard.get(Keyboard.LEFT));
-        moveIfPressed(Orientation.UP, keyboard.get(Keyboard.UP));
-        moveIfPressed(Orientation.RIGHT, keyboard.get(Keyboard.RIGHT));
-        moveIfPressed(Orientation.DOWN, keyboard.get(Keyboard.DOWN));
-        super.update(deltaTime);
-        System.out.println("Player position: " + getCurrentMainCellCoordinates()); // Debug output
-        
-
-        if(keyboard.get(Keyboard.LEFT).isDown() || keyboard.get(Keyboard.UP).isDown()
-        || keyboard.get(Keyboard.RIGHT).isDown() ||keyboard.get(Keyboard.DOWN).isDown()){
-
-            currentAnimation.update(deltaTime);
-            currentAnimation.orientate(getOrientation());
-
-
-
-        } else {
-            currentAnimation.reset();
-        }
-    }
+     @Override
+     public void update(float deltaTime) {
+         Keyboard keyboard = getOwnerArea().getKeyboard();
+     
+         if(isInDialog){
+             if(keyboard.get(Keyboard.SPACE).isPressed()){
+                 dialog.update(deltaTime);
+             }
+             if(dialog.isCompleted()){
+                 isInDialog = false;
+             }
+         } else {
+             moveIfPressed(Orientation.LEFT, keyboard.get(Keyboard.LEFT));
+             moveIfPressed(Orientation.UP, keyboard.get(Keyboard.UP));
+             moveIfPressed(Orientation.RIGHT, keyboard.get(Keyboard.RIGHT));
+             moveIfPressed(Orientation.DOWN, keyboard.get(Keyboard.DOWN));
+             super.update(deltaTime);
+     
+             if(keyboard.get(Keyboard.LEFT).isDown() || keyboard.get(Keyboard.UP).isDown()
+                     || keyboard.get(Keyboard.RIGHT).isDown() ||keyboard.get(Keyboard.DOWN).isDown()){
+     
+                 currentAnimation.update(deltaTime);
+                 currentAnimation.orientate(getOrientation());
+     
+             } else {
+                 currentAnimation.reset();
+             }
+         }
+     }
 
     @Override
     public void draw() {
@@ -196,24 +225,18 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     }
 
     @Override
-    public boolean wantsViewInteraction() {
-        Keyboard keyboard = getOwnerArea().getKeyboard();
-        return keyboard.get(Keyboard.L).isDown();
-        
-    }
+public boolean wantsViewInteraction() {
+    Keyboard keyboard = getOwnerArea().getKeyboard();
+    return !isInDialog && keyboard.get(Keyboard.L).isDown();
+}
+       
 
      @Override
         public void interactWith(Interactable other, boolean isCellInteraction) {
             other.acceptInteraction(handler, isCellInteraction);
 
         }
-    public void interactWith(ICBall ball, boolean wantsViewInteraction){
-        if(wantsViewInteraction){
-            System.out.println("Interacting with ball");
-            ball.collect();
-            new LogAction("CollectItem event completed").perform();
-        }
-    }
+
     public void interactWith(Door door, boolean wantsCellInteraction){
         if(wantsCellInteraction){
             System.out.println("Interacting with Door");
@@ -264,7 +287,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     public void enterArea(Area area, DiscreteCoordinates position) {
         area.registerActor(this);
         area.setViewCandidate(this);
-        
         setOwnerArea(area);
         setCurrentPosition(position.toVector());
         resetMotion();

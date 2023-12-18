@@ -28,7 +28,7 @@ public final class Lab extends ICMonArea {
      */
     @Override
     public DiscreteCoordinates getPlayerSpawnPosition() {
-        return new DiscreteCoordinates(15, 24);
+        return new DiscreteCoordinates(5, 5);
     }
 
     /**
@@ -38,7 +38,7 @@ public final class Lab extends ICMonArea {
     protected void createArea() {
         registerActor(new Background(this));
         registerActor(new Foreground(this));
-        registerActor(new Door(this, "town", new DiscreteCoordinates(15,23), new DiscreteCoordinates(6,1)));
+        registerActor(new Door(this, "town", new DiscreteCoordinates(15,23), new DiscreteCoordinates(6,1),new DiscreteCoordinates(7,1)));
 
     }
 
@@ -50,5 +50,7 @@ public final class Lab extends ICMonArea {
     public String getTitle() {
         return "lab";
     }
+    @Override
+    public void update(float deltaTime){super.update(deltaTime);}
 
 }
