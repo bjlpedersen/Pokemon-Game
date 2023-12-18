@@ -104,7 +104,8 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
             if (wantsViewInteraction()) {
                 //start();
 //                new EndOfTheGameEvent(ICMonPlayer.this, assistant).acceptInteraction(handler, wantsViewInteraction);
-                new LogAction("This is an interaction between the player and ICShopAssistant based on events").perform();
+                new LogAction("I heard that you were able to implement this step successfully. Congrats!").perform();
+
                 
         }
     }

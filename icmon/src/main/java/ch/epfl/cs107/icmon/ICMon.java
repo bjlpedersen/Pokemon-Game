@@ -52,6 +52,10 @@ public final class ICMon extends AreaGame {
 
     private ICMonEventManager eventManager;
 
+    public ICMonEventManager getEventManager(){
+        return eventManager;
+    }
+
     /**
      * ???
      */
@@ -75,8 +79,8 @@ public final class ICMon extends AreaGame {
             initArea(areas[areaIndex]);
             ICBall ball = new ICBall(getCurrentArea(), new DiscreteCoordinates(6,6));
             ICShopAssistant icShopAssistant = new ICShopAssistant(getCurrentArea(), Orientation.DOWN, new DiscreteCoordinates(8, 8));
-            createCollectItemEvent(ball);
-            createEndOfGameEvent(icShopAssistant);
+            CollectItemEvent collectItemEvent = createCollectItemEvent(ball);
+            createEndOfGameEvent(icShopAssistant, collectItemEvent);
 
             return true;
         }
@@ -84,22 +88,23 @@ public final class ICMon extends AreaGame {
         return false;
     }
 
-    private void createEndOfGameEvent(ICShopAssistant shopAssistant) {
+    private void createEndOfGameEvent(ICShopAssistant shopAssistant, ICMonEvent otherEvent) {
+        // Creates a EndOfTheGame event and registers it in the area
         new LogAction("EndOfTheGame event started").perform();
         RegisterinAreaAction registerEndOfGame = new RegisterinAreaAction(getCurrentArea(), shopAssistant, "EndOfTheGame event started");
-        new EndOfTheGameEvent(player, eventManager, shopAssistant).onStart(registerEndOfGame);
+        new EndOfTheGameEvent(player, eventManager, shopAssistant).onStart(otherEvent);
         new LogAction("EndOfTheGame event registered").perform();
     }
 
 
-    private void createCollectItemEvent(ICMonItem item){
-        // Creates a ball and registers it in the area
-
-
+    private CollectItemEvent createCollectItemEvent(ICMonItem item){
+        // Creates a CollectItem event and registers it in the area
         new LogAction("CollectItem event started").perform();
-        RegisterinAreaAction registerCollect = new RegisterinAreaAction(getCurrentArea(), item, "CollectItem event started");
-        new CollectItemEvent(item, eventManager, player).onStart(registerCollect);
+        new RegisterinAreaAction(getCurrentArea(), item, "CollectItem event started");
+        CollectItemEvent collectItemEvent = new CollectItemEvent(item, eventManager, player);
+        collectItemEvent.onStart();
         System.out.println("Ball collection registered");
+        return collectItemEvent;
     }
 
     public class ICMonGameState {
