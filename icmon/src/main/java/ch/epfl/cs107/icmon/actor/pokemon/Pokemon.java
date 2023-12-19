@@ -36,26 +36,43 @@ public abstract class Pokemon extends ICMonActor implements ICMonFightableActor{
         this.damage = damage;
         this.sprite = new RPGSprite("pokemon/" + spriteName, 1, 1, this);
     }
+
+    public PokemonProperties properties(){
+        return new PokemonProperties(name, hp, maxHp, damage);
+    }
+
     /**
      * @author Hamza REMMAL (hamza.remmal@epfl.ch)
      */
     public final class PokemonProperties {
+        String name;
+        float hp;
+        float maxHp;
+        int damage;
+
+        public PokemonProperties(String name, float hp, float maxHp, int damage){
+            this.name = name;
+            this.hp = hp;
+            this.maxHp = maxHp;
+            this.damage = damage;
+        }
 
         public String name(){
-            return null;
+            return name;
         }
 
         public float hp(){
-            return 0f;
+            return hp;
         }
 
         public float maxHp(){
-            return 0f;
+            return maxHp;
         }
 
         public int damage(){
-            return 0;
+            return damage;
         }
+
 
 
     }

@@ -2,6 +2,7 @@ package ch.epfl.cs107.icmon.actor;
 
 import ch.epfl.cs107.icmon.ICMon;
 import ch.epfl.cs107.icmon.actor.pokemon.ICMonFightableActor;
+import ch.epfl.cs107.icmon.actor.pokemon.Latios;
 import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
 import ch.epfl.cs107.icmon.gamelogic.events.PokemonFightEvent;
 import ch.epfl.cs107.icmon.messages.GamePlayMessage;
@@ -82,6 +83,8 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         super(owner, orientation, coordinates);
         sprite = new Sprite(spriteName, 1.f, 1.f, this);
         collection.add(starterPokemon);
+        collection.add(icMon.getArena().getNidoqueen());
+        collection.add(icMon.getArena().getLatios());
         orientation = getOrientation();
         landAnimation = new OrientedAnimation("actors/player", MOVE_DURATION, orientation, this);
         waterAnimation = new OrientedAnimation("actors/player_water", MOVE_DURATION, orientation, this);
@@ -93,6 +96,10 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         handler = new ICMonPlayerInteractionHandler();
 
 
+    }
+
+    public List<Pokemon> getCollection(){
+        return collection;
     }
 
     public class ICMonPlayerInteractionHandler implements ICMonInteractionVisitor {

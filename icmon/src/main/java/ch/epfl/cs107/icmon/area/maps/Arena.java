@@ -48,7 +48,12 @@ public class Arena extends ICMonArea {
         public Bulbizarre getBulbizarre(){
             return this.bulbizarre;
         }
-        public Latios getLatios(){
+
+    public Nidoqueen getNidoqueen() {
+        return nidoqueen;
+    }
+
+    public Latios getLatios(){
             return latios;
         }
 }
