@@ -36,8 +36,13 @@ public class RegisterinAreaAction implements Action {
     public void register() {
         if (item != null) {
             area.registerActor(item);
-        } else {
+        } else if (actor != null && !(actor instanceof Pokemon)){
             area.registerActor(actor);
+        } else if (pokemon1 != null) {
+            area.registerActor(pokemon1);
+            if (pokemon2 != null) {
+                area.registerActor(pokemon2);
+            }
         }
     }
 
