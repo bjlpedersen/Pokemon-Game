@@ -21,6 +21,7 @@ import java.util.List;
  * ???
  */
 public final class Town extends ICMonArea {
+    ICShopAssistant icShopAssistant = new ICShopAssistant(this, Orientation.DOWN, new DiscreteCoordinates(10, 8));
 
     /**
      * ???
@@ -38,8 +39,14 @@ public final class Town extends ICMonArea {
     protected void createArea() {
         registerActor(new Background(this));
         registerActor(new Foreground(this));
-        registerActor(new ICShopAssistant(this, Orientation.DOWN, new DiscreteCoordinates(8, 8)));
+        registerActor(icShopAssistant);
         registerActor(new Door(this, "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15,24)));
+        registerActor(new Door(this, "arena", new DiscreteCoordinates(4,2), new DiscreteCoordinates(20,16)));
+
+    }
+
+    public ICShopAssistant getICShopAssistant(){
+        return icShopAssistant;
     }
 
     /**
