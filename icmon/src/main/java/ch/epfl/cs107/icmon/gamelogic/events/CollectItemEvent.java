@@ -18,9 +18,4 @@ public class CollectItemEvent  extends ICMonEvent {
             new LogAction("CollectItem event completed").perform();
         }
     }
-
-
-    public String getEventName() {
-        return "CollectItem";
-    }
 }
