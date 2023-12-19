@@ -1,8 +1,8 @@
 package ch.epfl.cs107.icmon.actor;
 
 import ch.epfl.cs107.icmon.ICMon;
-import ch.epfl.cs107.icmon.ICMon.GamePlayMessage;
-import ch.epfl.cs107.icmon.ICMon.GamePlayMessage.PassDoorMessage;
+import ch.epfl.cs107.icmon.messages.GamePlayMessage;
+import ch.epfl.cs107.icmon.messages.PassDoorMessage;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
@@ -128,10 +128,10 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     @Override
 public void interactWith(Door door, boolean isCellInteraction) {
     if (isCellInteraction) {
-        ICMon.GamePlayMessage message = gamePlayMessage.createPassDoorMessage(door);
+        GamePlayMessage message = new PassDoorMessage(door);
         gameState.send(message);
+        }
     }
-}
     }
 
 
@@ -242,13 +242,6 @@ public boolean wantsViewInteraction() {
 
         }
 
-    public void interactWith(Door door, boolean wantsCellInteraction){
-        if(wantsCellInteraction){
-            System.out.println("Interacting with Door");
-            
-            
-        }
-    }
 
     /**
      * ???
@@ -309,7 +302,5 @@ public boolean wantsViewInteraction() {
     public void centerCamera() {
         getOwnerArea().setViewCandidate(this);
     }
-
-
 
 }
