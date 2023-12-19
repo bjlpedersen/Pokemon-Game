@@ -2,6 +2,8 @@ package ch.epfl.cs107.icmon;
 import ch.epfl.cs107.icmon.actor.pokemon.Bulbizarre;
 import ch.epfl.cs107.icmon.actor.pokemon.Latios;
 import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
+import ch.epfl.cs107.icmon.gamelogic.actions.ResumeEventAction;
+import ch.epfl.cs107.icmon.gamelogic.actions.SuspendEventAction;
 import ch.epfl.cs107.icmon.gamelogic.events.PokemonFightEvent;
 import ch.epfl.cs107.icmon.gamelogic.fights.ICMonFight;
 import ch.epfl.cs107.icmon.messages.GamePlayMessage;
@@ -152,7 +154,7 @@ public final class ICMon extends AreaGame {
     
 
 
-    
+    ICMonFight pauseMenu = new ICMonFight();
 
     /**
      * ???
@@ -162,19 +164,22 @@ public final class ICMon extends AreaGame {
     public void update(float deltaTime) {
         for (GamePlayMessage message : mailbox) {
             if (message instanceof SuspendWithEvent) {
-                ICMonFight pauseMenu = new ICMonFight();
+                SuspendEventAction suspendEventAction = new SuspendEventAction(message, activeEvents);
+                suspendEventAction.perform();
                 this.setPauseMenu(pauseMenu);
-                this.requestPause();
-                while(pauseMenu.isPaused()) {
-                    pauseMenu.update(deltaTime);
-                    System.out.println(pauseMenu.getCounter());
-                }
-//                this.requestResume();
+                pauseMenu.update(deltaTime);              
+                new ResumeEventAction(message, suspendEventAction.getPausedEvents()).perform();
             }
+
+            
+            
             System.out.println("executed");
             message.process(this);
         }
         mailbox.clear();
+
+
+        
         for(ICMonEvent event : completedEvents){
             if(event.getCompleted()){
                 activeEvents.remove(event);

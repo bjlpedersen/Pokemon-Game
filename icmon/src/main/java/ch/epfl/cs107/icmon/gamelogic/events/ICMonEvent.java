@@ -40,14 +40,14 @@ public class ICMonEvent implements ICMonInteractionVisitor {
         }
     }
 
-    final void suspend() {
+    public final void suspend() {
         if (!suspended && !completed && started) {
             suspended = true;
             // Execute the actions needed to suspend the event
         }
     }
 
-    final void resume() {
+    public final void resume() {
         if (suspended && !completed && started) {
             suspended = false;
             // Execute the actions needed to resume the event

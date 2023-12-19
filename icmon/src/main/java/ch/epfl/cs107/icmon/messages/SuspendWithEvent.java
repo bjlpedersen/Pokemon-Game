@@ -18,4 +18,8 @@ public class SuspendWithEvent extends GamePlayMessage{
         System.out.println("suspension of ongoing events due to a combat event");
         new ICMonFight();
     }
+
+    public ICMonEvent getEvent(){
+        return event;
+    }
 }

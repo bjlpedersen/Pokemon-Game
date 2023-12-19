@@ -6,6 +6,7 @@ import ch.epfl.cs107.play.window.Canvas;
 
 public class ICMonFight extends PauseMenu {
     private float counter = 5.f;
+    private boolean hasRequestedPause = false;
 
     public ICMonFight() {
         super();
@@ -25,12 +26,22 @@ public class ICMonFight extends PauseMenu {
 
     @Override
     public void update(float deltaTime) {
-            super.update(deltaTime);
+        super.update(deltaTime);
+    
+        if(!hasRequestedPause) { 
+            getOwner().requestPause();
+            hasRequestedPause = true;
+        }
+    
+        if(isPaused()){
             counter -= deltaTime;
-            if(counter <= 0){
-                System.out.println("fight ended");
-                end();
-            }
-
+            System.out.println("fight paused");
+            System.out.println(getCounter());
+        }
+    
+        if(getCounter() <= 0){
+            System.out.println("fight ended");
+            getOwner().requestResume();
+        }
     }
 }
