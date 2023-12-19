@@ -4,7 +4,10 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.epfl.cs107.icmon.actor.ICMonActor;
+import ch.epfl.cs107.icmon.gamelogic.events.PokemonFightEvent;
+import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.play.areagame.area.Area;
+import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
 import ch.epfl.cs107.play.engine.actor.RPGSprite;
 import ch.epfl.cs107.play.engine.actor.Sprite;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
@@ -56,7 +59,12 @@ public abstract class Pokemon extends ICMonActor implements ICMonFightableActor{
 
 
     }
-    
+
+    @Override
+    public void acceptInteraction(AreaInteractionVisitor v, boolean isCellInteraction) {
+        ((ICMonInteractionVisitor) v).interactWith(this, true);
+        System.out.println("interacting with pokemon");
+    }
 
     @Override
     public boolean isViewInteractable() {

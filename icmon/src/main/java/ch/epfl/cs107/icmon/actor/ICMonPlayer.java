@@ -124,9 +124,9 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
             }
         }
 
-        public void interactWith(Pokemon pokemon, boolean wantCellInteraction, PokemonFightEvent event) {
-            if (wantsCellInteraction()) {
-                GamePlayMessage message = new SuspendWithEvent(event);
+        public void interactWith(Pokemon pokemon, boolean isCellInteraction) {
+            if (isCellInteraction) {
+                GamePlayMessage message = new SuspendWithEvent(new PokemonFightEvent(ICMonPlayer.this, icMon.getEventManager(), pokemon, collection.get(0)));
                 gameState.send(message);
             }
         }
@@ -137,7 +137,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
                 isInDialog = true;
                 dialog = new Dialog("end_of_game_event_interaction_with_icshopassistant");
                 //start();
-//
                 //new LogAction("This is an interaction between the player and ICShopAssistant based on events").perform();
 
             }
@@ -152,9 +151,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         }
     }
 
-
-        private void fight(ICMonFightableActor opponent) {
-        }
 
 
         public void draw(Canvas canvas) {
@@ -208,7 +204,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
          * @return ???
          */
         public boolean takeCellSpace() {
-            return true;
+            return false;
         }
 
         /**

@@ -33,6 +33,7 @@ import java.awt.event.KeyListener;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
+import ch.epfl.cs107.icmon.messages.SuspendWithEvent;
 
 
 
@@ -60,9 +61,11 @@ public final class ICMon extends AreaGame {
 
     private GamePlayMessage gamePlayMessage;
     private List<GamePlayMessage> mailbox = new ArrayList<>();
-    Town town;
-    Lab lab;
-    Arena arena;
+    private Town town;
+    private Lab lab;
+    private Arena arena;
+
+    private boolean isPaused = false;
     
 
     /**
@@ -108,15 +111,15 @@ public final class ICMon extends AreaGame {
 
     private void createFightEvent(Pokemon pokemon1, Pokemon pokemon2,ICMonActor player, ICMon.ICMonEventManager eventManager){
         new LogAction("Fight event started").perform();
-        RegisterinAreaAction registerFight = new RegisterinAreaAction(getCurrentArea(), pokemon1, "Fight event started");
+        new RegisterinAreaAction(getCurrentArea(), pokemon1, "Fight event started"); // making 2 bulbasaurs
         new PokemonFightEvent(player, eventManager, pokemon1, pokemon2).onStart();
         new LogAction("Fight event registered").perform();
-        new ICMonFight(pokemon1, pokemon2);
+        new ICMonFight();
     }
 
     private void createEndOfGameEvent(ICShopAssistant shopAssistant, CollectItemEvent collectItemEvent) {
         new LogAction("EndOfTheGame event started").perform();
-        RegisterinAreaAction registerEndOfGame = new RegisterinAreaAction(getCurrentArea(), shopAssistant, "EndOfTheGame event started");
+        new RegisterinAreaAction(getCurrentArea(), shopAssistant, "EndOfTheGame event started");
         new EndOfTheGameEvent(player, eventManager, shopAssistant).onStart(collectItemEvent);
         new LogAction("EndOfTheGame event registered").perform();
     }
@@ -125,7 +128,7 @@ public final class ICMon extends AreaGame {
     private CollectItemEvent createCollectItemEvent(ICMonItem item){
         // Creates a ball and registers it in the area
         new LogAction("CollectItem event started").perform();
-        RegisterinAreaAction registerCollect = new RegisterinAreaAction(getCurrentArea(), item, "CollectItem event started");
+        new RegisterinAreaAction(getCurrentArea(), item, "CollectItem event started");
         CollectItemEvent collectItemEvent = new CollectItemEvent(item, eventManager, player);
         collectItemEvent.onStart();
         System.out.println("Ball collection registered");
@@ -143,7 +146,6 @@ public final class ICMon extends AreaGame {
             }
         }
         public void send(GamePlayMessage message) {
-//            System.out.println("executed");
             mailbox.add(message);
         }
     }
@@ -158,8 +160,17 @@ public final class ICMon extends AreaGame {
      */
     @Override
     public void update(float deltaTime) {
-        System.out.println(mailbox.size());
         for (GamePlayMessage message : mailbox) {
+            if (message instanceof SuspendWithEvent) {
+                ICMonFight pauseMenu = new ICMonFight();
+                this.setPauseMenu(pauseMenu);
+                this.requestPause();
+                while(pauseMenu.isPaused()) {
+                    pauseMenu.update(deltaTime);
+                    System.out.println(pauseMenu.getCounter());
+                }
+//                this.requestResume();
+            }
             System.out.println("executed");
             message.process(this);
         }

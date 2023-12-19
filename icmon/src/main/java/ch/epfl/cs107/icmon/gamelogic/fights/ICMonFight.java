@@ -7,12 +7,16 @@ import ch.epfl.cs107.play.window.Canvas;
 public class ICMonFight extends PauseMenu {
     private float counter = 5.f;
 
-    public ICMonFight(Pokemon pokemon1, Pokemon pokemon2) {
+    public ICMonFight() {
         super();
     }
 
-    public boolean isRunning() {
+    public boolean isPaused() {
         return counter > 0;
+    }
+
+    public float getCounter() {
+        return counter;
     }
 
     @Override
@@ -23,5 +27,10 @@ public class ICMonFight extends PauseMenu {
     public void update(float deltaTime) {
             super.update(deltaTime);
             counter -= deltaTime;
+            if(counter <= 0){
+                System.out.println("fight ended");
+                end();
+            }
+
     }
 }
