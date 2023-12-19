@@ -94,14 +94,11 @@ public final class ICMon extends AreaGame {
             gamePlayMessage = new GamePlayMessage();
             initArea(areas[areaIndex]);
             ICBall ball = new ICBall(town, new DiscreteCoordinates(6,6));
-            ICShopAssistant icShopAssistant = new ICShopAssistant(town, Orientation.DOWN, new DiscreteCoordinates(8, 8));
-            Bulbizarre bulbizarre = new Bulbizarre(arena, Orientation.DOWN, new DiscreteCoordinates(6, 6));
-            Latios latios = new Latios(arena, Orientation.DOWN, new DiscreteCoordinates(8, 6));
             Door door = new Door(getCurrentArea(), "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15, 24));
 
-            createFightEvent(bulbizarre, latios, player, eventManager);
+            createFightEvent(arena.getBulbizarre(), arena.getLatios(), player, eventManager);
             CollectItemEvent collectItemEvent = createCollectItemEvent(ball);
-            createEndOfGameEvent(icShopAssistant, collectItemEvent);
+            createEndOfGameEvent(town.getICShopAssistant(), collectItemEvent);
 
             return true;
         }
@@ -219,7 +216,7 @@ public final class ICMon extends AreaGame {
     private void initArea(String areaKey) {
         ICMonArea area = (ICMonArea) setCurrentArea(areaKey, true);
         DiscreteCoordinates coords = area.getPlayerSpawnPosition();
-        player = new ICMonPlayer(this, area, Orientation.DOWN, coords, "actors/player", new Bulbizarre(area, Orientation.DOWN, new DiscreteCoordinates(6, 6)));
+        player = new ICMonPlayer(this, area, Orientation.DOWN, coords, "actors/player", arena.getPlayerStarter());
         player.enterArea(area, coords);
         player.centerCamera();
         

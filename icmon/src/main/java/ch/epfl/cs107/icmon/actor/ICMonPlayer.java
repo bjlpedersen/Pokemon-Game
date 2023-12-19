@@ -47,7 +47,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     /**
      * ???
      */
-    private final static int MOVE_DURATION = 8;
+    private final static int MOVE_DURATION = 2;
     /** ??? */
 
     /**
