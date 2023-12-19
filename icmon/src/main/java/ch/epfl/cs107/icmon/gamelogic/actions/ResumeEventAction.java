@@ -15,7 +15,6 @@ public class ResumeEventAction implements Action{
         this.activeEvents = activeEvents;
     }
 
-
     @Override
     public void perform() {
             for(ICMonEvent events : activeEvents){
@@ -25,4 +24,4 @@ public class ResumeEventAction implements Action{
         }
 
     }
-}
+

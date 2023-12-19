@@ -16,7 +16,7 @@ public class SuspendWithEvent extends GamePlayMessage{
 
     public void process(ICMon icMon){
         System.out.println("suspension of ongoing events due to a combat event");
-        new ICMonFight();
+        new PokemonFightEvent(event.getMainCharacter(), event.getEventManager(), event.getPokemon1(), event.getPokemon2());
     }
 
     public ICMonEvent getEvent(){

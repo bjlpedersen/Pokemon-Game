@@ -66,7 +66,7 @@ public final class ICMon extends AreaGame {
     private Town town;
     private Lab lab;
     private Arena arena;
-
+    private ICMonFight pauseMenu;
     private boolean isPaused = false;
     
 
@@ -81,6 +81,14 @@ public final class ICMon extends AreaGame {
         this.arena = new Arena();
         addArea(arena);
 
+    }
+
+    public Arena getArena(){
+        return arena;
+    }
+
+    public Town getTown(){
+        return town;
     }
 
     /**
@@ -101,6 +109,7 @@ public final class ICMon extends AreaGame {
             ICBall ball = new ICBall(town, new DiscreteCoordinates(6,6));
             Door door = new Door(getCurrentArea(), "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15, 24));
 
+            pauseMenu = new ICMonFight(player.getCollection().get(0), arena.getLatios());
             createFightEvent(arena.getBulbizarre(), arena.getLatios(), player, eventManager);
             CollectItemEvent collectItemEvent = createCollectItemEvent(ball);
             createEndOfGameEvent(town.getICShopAssistant(), collectItemEvent);
@@ -116,7 +125,7 @@ public final class ICMon extends AreaGame {
         new RegisterinAreaAction(getCurrentArea(), pokemon1, "Fight event started"); // making 2 bulbasaurs
         new PokemonFightEvent(player, eventManager, pokemon1, pokemon2).onStart();
         new LogAction("Fight event registered").perform();
-        new ICMonFight();
+        new PokemonFightEvent(player, eventManager, pokemon1, pokemon2);
     }
 
     private void createEndOfGameEvent(ICShopAssistant shopAssistant, CollectItemEvent collectItemEvent) {
@@ -154,7 +163,6 @@ public final class ICMon extends AreaGame {
     
 
 
-    ICMonFight pauseMenu = new ICMonFight();
 
     /**
      * ???
@@ -164,11 +172,12 @@ public final class ICMon extends AreaGame {
     public void update(float deltaTime) {
         for (GamePlayMessage message : mailbox) {
             if (message instanceof SuspendWithEvent) {
-                SuspendEventAction suspendEventAction = new SuspendEventAction(message, activeEvents);
-                suspendEventAction.perform();
+
+//                SuspendEventAction suspendEventAction = new SuspendEventAction(message, activeEvents);
+//                suspendEventAction.perform();
                 this.setPauseMenu(pauseMenu);
                 pauseMenu.update(deltaTime);              
-                new ResumeEventAction(message, suspendEventAction.getPausedEvents()).perform();
+//                new ResumeEventAction(message, suspendEventAction.getPausedEvents()).perform();
             }
 
             
@@ -232,7 +241,7 @@ public final class ICMon extends AreaGame {
     private void initArea(String areaKey) {
         ICMonArea area = (ICMonArea) setCurrentArea(areaKey, true);
         DiscreteCoordinates coords = area.getPlayerSpawnPosition();
-        player = new ICMonPlayer(this, area, Orientation.DOWN, coords, "actors/player", arena.getPlayerStarter());
+        this.player = new ICMonPlayer(this, area, Orientation.DOWN, coords, "actors/player", arena.getPlayerStarter());
         player.enterArea(area, coords);
         player.centerCamera();
         

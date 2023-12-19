@@ -17,6 +17,7 @@ public class PokemonFightEvent extends ICMonEvent {
         super(mainCharacter, eventManager);
         this.pokemon1 = pokemon1;
         this.pokemon2 = pokemon2;
+        this.fight();
     }
 
 
@@ -33,7 +34,15 @@ public class PokemonFightEvent extends ICMonEvent {
         new LeaveAreaAction(pokemon2);
     }
 
-    private void fight(ICMonFightableActor opponent) {
-        new ICMonFight();
+    private ICMonFight fight() {
+        return new ICMonFight(pokemon1, pokemon2);
+    }
+
+    public ICMonActor getMainCharacter() {
+        return mainCharacter;
+    }
+
+    public ICMon.ICMonEventManager getEventManager() {
+        return eventManager;
     }
 }
