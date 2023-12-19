@@ -1,6 +1,9 @@
 package ch.epfl.cs107.icmon.actor;
 
 import ch.epfl.cs107.icmon.ICMon;
+import ch.epfl.cs107.icmon.actor.pokemon.ICMonFightableActor;
+import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
+import ch.epfl.cs107.icmon.gamelogic.events.PokemonFightEvent;
 import ch.epfl.cs107.icmon.messages.GamePlayMessage;
 import ch.epfl.cs107.icmon.messages.PassDoorMessage;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
@@ -12,6 +15,7 @@ import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.EndOfTheGameEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.StartEventAction;
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
+import ch.epfl.cs107.icmon.messages.SuspendWithEvent;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.actor.Interactor;
 import ch.epfl.cs107.play.areagame.actor.MovableAreaEntity;
@@ -31,6 +35,7 @@ import ch.epfl.cs107.play.window.Keyboard;
 import ch.epfl.cs107.play.engine.actor.Dialog;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,9 +60,8 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     
     private ICMon.ICMonGameState gameState;
     private ICMon icMon;
-    PassDoorMessage passDoorMessage;
-    GamePlayMessage gamePlayMessage;
     private Dialog dialog;
+    private List<Pokemon> collection = new ArrayList<Pokemon>();
 
     
 
@@ -69,9 +73,10 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
      * @param coordinates ???
      * @param spriteName ???
      */
-    public ICMonPlayer(ICMon icMon, Area owner, Orientation orientation, DiscreteCoordinates coordinates, String spriteName) {
+    public ICMonPlayer(ICMon icMon, Area owner, Orientation orientation, DiscreteCoordinates coordinates, String spriteName, Pokemon starterPokemon) {
         super(owner, orientation, coordinates);
         sprite = new Sprite(spriteName, 1.f, 1.f, this);
+        collection.add(starterPokemon);
         orientation = getOrientation();
         landAnimation = new OrientedAnimation("actors/player",MOVE_DURATION, orientation, this);
         waterAnimation = new OrientedAnimation("actors/player_water",MOVE_DURATION, orientation, this);
@@ -114,6 +119,14 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
             }
         }
 
+        public void interactWith(Pokemon pokemon, boolean wantCellInteraction, PokemonFightEvent event) {
+            if (wantsCellInteraction()) {
+                GamePlayMessage message = new SuspendWithEvent(event);
+                gameState.send(message);
+                }
+            }
+        }
+
         public void interactWith(ICShopAssistant assistant , boolean wantsViewInteraction) {
             if (wantsViewInteraction()) {
                 isInDialog = true;
@@ -125,16 +138,15 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         }
         
     }
-    @Override
-public void interactWith(Door door, boolean isCellInteraction) {
-    if (isCellInteraction) {
-        GamePlayMessage message = new PassDoorMessage(door);
-        gameState.send(message);
+    public void interactWith(Door door, boolean isCellInteraction) {
+        if (isCellInteraction) {
+            GamePlayMessage message = new PassDoorMessage(door);
+            gameState.send(message);
+            }
         }
-    }
-    }
 
 
+private void fight(ICMonFightableActor opponent) {}
 
 
     @Override

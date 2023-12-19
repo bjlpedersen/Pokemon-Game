@@ -1,4 +1,9 @@
 package ch.epfl.cs107.icmon;
+import ch.epfl.cs107.icmon.actor.pokemon.Bulbizarre;
+import ch.epfl.cs107.icmon.actor.pokemon.Latios;
+import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
+import ch.epfl.cs107.icmon.gamelogic.events.PokemonFightEvent;
+import ch.epfl.cs107.icmon.gamelogic.fights.ICMonFight;
 import ch.epfl.cs107.icmon.messages.GamePlayMessage;
 import ch.epfl.cs107.icmon.actor.Door;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
@@ -44,7 +49,6 @@ public final class ICMon extends AreaGame {
     private ICMonPlayer player;
     /** ??? */
     private int areaIndex;
-
     private ArrayList<ICMonEvent> activeEvents = new ArrayList<>();
 
     private ArrayList<ICMonEvent> completedEvents = new ArrayList<>();
@@ -56,16 +60,22 @@ public final class ICMon extends AreaGame {
 
     private GamePlayMessage gamePlayMessage;
     private List<GamePlayMessage> mailbox = new ArrayList<>();
+    Town town;
+    Lab lab;
+    Arena arena;
     
 
     /**
      * ???
      */
     private void createAreas() {
-        addArea(new Town());
-        addArea(new Lab());
-        addArea(new Arena());
-        
+        this.town = new Town();
+        addArea(town);
+        this.lab = new Lab();
+        addArea(lab);
+        this.arena = new Arena();
+        addArea(arena);
+
     }
 
     /**
@@ -83,9 +93,13 @@ public final class ICMon extends AreaGame {
             gameState = new ICMonGameState();
             gamePlayMessage = new GamePlayMessage();
             initArea(areas[areaIndex]);
-            ICBall ball = new ICBall(getCurrentArea(), new DiscreteCoordinates(6,6));
-            ICShopAssistant icShopAssistant = new ICShopAssistant(getCurrentArea(), Orientation.DOWN, new DiscreteCoordinates(8, 8));
+            ICBall ball = new ICBall(town, new DiscreteCoordinates(6,6));
+            ICShopAssistant icShopAssistant = new ICShopAssistant(town, Orientation.DOWN, new DiscreteCoordinates(8, 8));
+            Bulbizarre bulbizarre = new Bulbizarre(arena, Orientation.DOWN, new DiscreteCoordinates(6, 6));
+            Latios latios = new Latios(arena, Orientation.DOWN, new DiscreteCoordinates(8, 6));
             Door door = new Door(getCurrentArea(), "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15, 24));
+
+            createFightEvent(bulbizarre, latios, player, eventManager);
             CollectItemEvent collectItemEvent = createCollectItemEvent(ball);
             createEndOfGameEvent(icShopAssistant, collectItemEvent);
 
@@ -95,32 +109,13 @@ public final class ICMon extends AreaGame {
         return false;
     }
 
-//    public class GamePlayMessage {
-//        public void process(){
-//
-//
-//        }
-//        public PassDoorMessage createPassDoorMessage(Door door){
-//            return new PassDoorMessage(door);
-//
-//        }
-//        public class PassDoorMessage extends GamePlayMessage {
-//            private String area;
-//            private DiscreteCoordinates coordinates;
-//
-//            public PassDoorMessage(Door door){
-//                area = door.getDestinationArea();
-//                coordinates = door.getDestinationCoordinates()
-//                ;
-//            }
-//
-//            @Override
-//            public void process(){
-//                switchArea(area, coordinates);
-//
-//            }
-//        }
-//    }
+    private void createFightEvent(Pokemon pokemon1, Pokemon pokemon2,ICMonActor player, ICMon.ICMonEventManager eventManager){
+        new LogAction("Fight event started").perform();
+        RegisterinAreaAction registerFight = new RegisterinAreaAction(getCurrentArea(), pokemon1, "Fight event started");
+        new PokemonFightEvent(player, eventManager, pokemon1, pokemon2).onStart();
+        new LogAction("Fight event registered").perform();
+        new ICMonFight(pokemon1, pokemon2);
+    }
 
     private void createEndOfGameEvent(ICShopAssistant shopAssistant, CollectItemEvent collectItemEvent) {
         new LogAction("EndOfTheGame event started").perform();
@@ -151,10 +146,9 @@ public final class ICMon extends AreaGame {
             }
         }
         public void send(GamePlayMessage message) {
+//            System.out.println("executed");
             mailbox.add(message);
         }
-
-
     }
     
 
@@ -167,7 +161,9 @@ public final class ICMon extends AreaGame {
      */
     @Override
     public void update(float deltaTime) {
+        System.out.println(mailbox.size());
         for (GamePlayMessage message : mailbox) {
+            System.out.println("executed");
             message.process(this);
         }
         mailbox.clear();
@@ -223,7 +219,7 @@ public final class ICMon extends AreaGame {
     private void initArea(String areaKey) {
         ICMonArea area = (ICMonArea) setCurrentArea(areaKey, true);
         DiscreteCoordinates coords = area.getPlayerSpawnPosition();
-        player = new ICMonPlayer(this, area, Orientation.DOWN, coords, "actors/player");
+        player = new ICMonPlayer(this, area, Orientation.DOWN, coords, "actors/player", new Bulbizarre(area, Orientation.DOWN, new DiscreteCoordinates(6, 6)));
         player.enterArea(area, coords);
         player.centerCamera();
         

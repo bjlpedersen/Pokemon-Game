@@ -36,8 +36,6 @@ public class EndOfTheGameEvent extends ICMonEvent {
         new RegisterEventAction(eventManager, event).perform();
         new LogAction("I heard that you were able to implement this step successfully. Congrats!").perform();
     }
-
-
 }
 
 

@@ -19,6 +19,5 @@ public class PassDoorMessage extends GamePlayMessage {
     @Override
     public void process(ICMon icMon){
         icMon.switchArea(area, coordinates);
-
     }
 }
