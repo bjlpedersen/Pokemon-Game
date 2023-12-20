@@ -183,7 +183,9 @@ public final class ICMon extends AreaGame {
             
             
             System.out.println("executed");
+            
             message.process(this);
+
         }
         mailbox.clear();
 

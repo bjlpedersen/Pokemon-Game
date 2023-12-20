@@ -11,7 +11,9 @@ import ch.epfl.cs107.play.window.Window;
 
 public abstract class PauseMenu implements Playable, Acoustics{
 
+    public boolean isPaused = false;
     public interface Pausable{
+        
         void requestResume();
         void requestPause();
         boolean isPaused();
@@ -25,6 +27,8 @@ public abstract class PauseMenu implements Playable, Acoustics{
     //private FileSystem fileSystem; // TODO link it to save concept
 
     protected static final float CAMERA_SCALE_FACTOR = 13;
+
+
 
     /**
      * Draw the entire menu (background, texts, etc.)
@@ -79,9 +83,14 @@ public abstract class PauseMenu implements Playable, Acoustics{
         drawMenu(window);
         bip(window);
     }
+    
+    
 
     @Override
-    public void end() {}
+    public void end() {
+        owner.requestResume();
+        
+    }
 
     @Override
     public String getTitle() {
