@@ -49,6 +49,9 @@ public final class ICMonFightArenaGraphics implements Graphics {
     public void setInteractionGraphics(ICMonFightInteractionGraphics graphics){
         this.interactionGraphics = graphics;
     }
+    public void removeInteractionGraphics(){
+        this.interactionGraphics = null;
+    }
 
     @Override
     public void draw(Canvas canvas) {

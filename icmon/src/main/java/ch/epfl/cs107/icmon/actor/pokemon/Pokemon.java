@@ -58,10 +58,12 @@ public abstract class Pokemon extends ICMonActor implements ICMonFightableActor{
         }
 
         public String name(){
+            
             return name;
         }
 
         public float hp(){
+            
             return hp;
         }
 

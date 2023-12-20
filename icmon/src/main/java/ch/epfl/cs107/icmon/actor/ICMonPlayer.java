@@ -1,9 +1,7 @@
 package ch.epfl.cs107.icmon.actor;
 
 import ch.epfl.cs107.icmon.ICMon;
-import ch.epfl.cs107.icmon.actor.pokemon.ICMonFightableActor;
-import ch.epfl.cs107.icmon.actor.pokemon.Latios;
-import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
+import ch.epfl.cs107.icmon.actor.pokemon.*;
 import ch.epfl.cs107.icmon.gamelogic.events.PokemonFightEvent;
 import ch.epfl.cs107.icmon.messages.GamePlayMessage;
 import ch.epfl.cs107.icmon.messages.PassDoorMessage;
@@ -69,7 +67,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     private ICMon icMon;
     private Dialog dialog;
     private List<Pokemon> collection = new ArrayList<Pokemon>();
-
+    private boolean activeCooldown = false;
 
     /**
      * ???
@@ -82,7 +80,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     public ICMonPlayer(ICMon icMon, Area owner, Orientation orientation, DiscreteCoordinates coordinates, String spriteName, Pokemon starterPokemon) {
         super(owner, orientation, coordinates);
         sprite = new Sprite(spriteName, 1.f, 1.f, this);
-        collection.add(starterPokemon);
+        collection.add(icMon.getArena().getBulbizarre());
         collection.add(icMon.getArena().getNidoqueen());
         collection.add(icMon.getArena().getLatios());
         orientation = getOrientation();
@@ -132,10 +130,11 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         }
 
         public void interactWith(Pokemon pokemon, boolean isCellInteraction) {
-            if (isCellInteraction) {
+            
+                 
                 GamePlayMessage message = new SuspendWithEvent(new PokemonFightEvent(ICMonPlayer.this, icMon.getEventManager(), pokemon, collection.get(0)));
                 gameState.send(message);
-            }
+            
         }
 
 
@@ -174,7 +173,11 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
          */
 
         public void update(float deltaTime) {
+           
             Keyboard keyboard = getOwnerArea().getKeyboard();
+            if(activeCooldown){
+
+            }
 
             if (isInDialog) {
                 if (keyboard.get(Keyboard.SPACE).isPressed()) {
