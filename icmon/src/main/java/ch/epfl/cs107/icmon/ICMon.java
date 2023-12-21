@@ -2,9 +2,10 @@ package ch.epfl.cs107.icmon;
 import ch.epfl.cs107.icmon.actor.pokemon.Bulbizarre;
 import ch.epfl.cs107.icmon.actor.pokemon.Latios;
 import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
+import ch.epfl.cs107.icmon.area.maps.*;
 import ch.epfl.cs107.icmon.gamelogic.actions.ResumeEventAction;
 import ch.epfl.cs107.icmon.gamelogic.actions.SuspendEventAction;
-import ch.epfl.cs107.icmon.gamelogic.events.PokemonFightEvent;
+import ch.epfl.cs107.icmon.gamelogic.events.*;
 import ch.epfl.cs107.icmon.gamelogic.fights.ICMonFight;
 import ch.epfl.cs107.icmon.messages.GamePlayMessage;
 import ch.epfl.cs107.icmon.actor.Door;
@@ -14,14 +15,8 @@ import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.items.ICMonItem;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
 import ch.epfl.cs107.icmon.area.ICMonArea;
-import ch.epfl.cs107.icmon.area.maps.Lab;
-import ch.epfl.cs107.icmon.area.maps.Town;
-import ch.epfl.cs107.icmon.area.maps.Arena;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.gamelogic.actions.RegisterinAreaAction;
-import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
-import ch.epfl.cs107.icmon.gamelogic.events.EndOfTheGameEvent;
-import ch.epfl.cs107.icmon.gamelogic.events.ICMonEvent;
 import ch.epfl.cs107.play.areagame.AreaGame;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.io.FileSystem;
@@ -43,7 +38,6 @@ import ch.epfl.cs107.icmon.messages.SuspendWithEvent;
  * ???
  */
 public final class ICMon extends AreaGame {
-
     /** ??? */
     public final static float CAMERA_SCALE_FACTOR = 13.f;
     /** ??? */
@@ -53,21 +47,21 @@ public final class ICMon extends AreaGame {
     /** ??? */
     private int areaIndex;
     private ArrayList<ICMonEvent> activeEvents = new ArrayList<>();
-
     private ArrayList<ICMonEvent> completedEvents = new ArrayList<>();
-
     private ArrayList<ICMonEvent> newEvents = new ArrayList<>();
     private ICMonGameState gameState;
-
     private ICMonEventManager eventManager;
-
     private GamePlayMessage gamePlayMessage;
     private List<GamePlayMessage> mailbox = new ArrayList<>();
     private Town town;
     private Lab lab;
     private Arena arena;
+    private House house;
+    private Shop shop;
     private ICMonFight pauseMenu;
     private boolean isPaused = false;
+    private CollectItemEvent collectItemEvent;
+    private EndOfTheGameEvent endOfTheGameEvent;
     
 
     /**
@@ -80,6 +74,11 @@ public final class ICMon extends AreaGame {
         addArea(lab);
         this.arena = new Arena();
         addArea(arena);
+        this.house = new House();
+        addArea(house);
+        this.shop = new Shop();
+        addArea(shop);
+
 
     }
 
@@ -91,6 +90,18 @@ public final class ICMon extends AreaGame {
         return town;
     }
 
+    public Shop getShop(){
+        return shop;
+    }
+
+    public CollectItemEvent getCollectItemEvent(){
+        return collectItemEvent;
+    }
+
+    public EndOfTheGameEvent getEndOfTheGameEvent(){
+        return endOfTheGameEvent;
+    }
+
     /**
      * ???
      * @param window (Window): display context. Not null
@@ -100,20 +111,20 @@ public final class ICMon extends AreaGame {
     @Override
     public boolean begin(Window window, FileSystem fileSystem) {
         if (super.begin(window, fileSystem)) {
+            new IntroductionEvent(player, eventManager);
             eventManager = new ICMonEventManager();
             createAreas();
             areaIndex = 0;
             gameState = new ICMonGameState();
             gamePlayMessage = new GamePlayMessage();
-            initArea(areas[areaIndex]);
-            ICBall ball = new ICBall(town, new DiscreteCoordinates(6,6));
-            Door door = new Door(getCurrentArea(), "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15, 24));
+            initArea("house");
+            new Door(getCurrentArea(), "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15, 24));
 
             pauseMenu = new ICMonFight(player.getCollection().get(0), arena.getLatios());
+//            player.setIsInDialog(true);
             createFightEvent(arena.getBulbizarre(), arena.getLatios(), player, eventManager);
-            CollectItemEvent collectItemEvent = createCollectItemEvent(ball);
-            createEndOfGameEvent(town.getICShopAssistant(), collectItemEvent);
-
+            this.collectItemEvent = new CollectItemEvent(eventManager, player);
+            this.endOfTheGameEvent = new EndOfTheGameEvent(player, eventManager, shop.getICShopAssistant());
             return true;
         }
         
@@ -128,23 +139,6 @@ public final class ICMon extends AreaGame {
         new PokemonFightEvent(player, eventManager, pokemon1, pokemon2);
     }
 
-    private void createEndOfGameEvent(ICShopAssistant shopAssistant, CollectItemEvent collectItemEvent) {
-        new LogAction("EndOfTheGame event started").perform();
-        new RegisterinAreaAction(getCurrentArea(), shopAssistant, "EndOfTheGame event started");
-        new EndOfTheGameEvent(player, eventManager, shopAssistant).onStart(collectItemEvent);
-        new LogAction("EndOfTheGame event registered").perform();
-    }
-
-
-    private CollectItemEvent createCollectItemEvent(ICMonItem item){
-        // Creates a ball and registers it in the area
-        new LogAction("CollectItem event started").perform();
-        new RegisterinAreaAction(getCurrentArea(), item, "CollectItem event started");
-        CollectItemEvent collectItemEvent = new CollectItemEvent(item, eventManager, player);
-        collectItemEvent.onStart();
-        System.out.println("Ball collection registered");
-        return collectItemEvent;
-    }
 
     public class ICMonGameState {
         public ICMonGameState(){
@@ -162,6 +156,11 @@ public final class ICMon extends AreaGame {
     }
     
 
+    private void events() {
+        ICMonEvent initialEvent = player.getIntroductionEvent();
+        ICMonEvent[] chainEvents = player.getChainEvents();
+        new ICMonChainedEvent(player, eventManager, initialEvent, chainEvents);
+    }
 
 
     /**
@@ -170,6 +169,8 @@ public final class ICMon extends AreaGame {
      */
     @Override
     public void update(float deltaTime) {
+        super.update(deltaTime);
+        events();
         for (GamePlayMessage message : mailbox) {
             if (message instanceof SuspendWithEvent) {
 
@@ -179,18 +180,12 @@ public final class ICMon extends AreaGame {
                 pauseMenu.update(deltaTime);              
 //                new ResumeEventAction(message, suspendEventAction.getPausedEvents()).perform();
             }
-
-            
-            
-            System.out.println("executed");
-            
             message.process(this);
 
         }
         mailbox.clear();
 
 
-        
         for(ICMonEvent event : completedEvents){
             if(event.getCompleted()){
                 activeEvents.remove(event);
@@ -207,7 +202,6 @@ public final class ICMon extends AreaGame {
         newEvents.clear();
 
     }
-        super.update(deltaTime);
         Keyboard keyboard = getWindow().getKeyboard();
         if(keyboard.get(Keyboard.R).isDown()){
             begin(getWindow(), getFileSystem());

@@ -101,7 +101,6 @@ public class ICMonFight extends PauseMenu {
 
                 //}
             case CONCLUSION:
-                System.out.println("Good Fight!");
                 if (currentState == States.CONCLUSION) {
 
                     this.end();

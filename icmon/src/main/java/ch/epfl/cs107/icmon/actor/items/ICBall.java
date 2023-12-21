@@ -18,9 +18,6 @@ public class ICBall extends ICMonItem implements Interactable {
 
     public ICBall(Area area, DiscreteCoordinates position){
         super(area, position, "items/icball");
-
-
-
     }
 
     @Override

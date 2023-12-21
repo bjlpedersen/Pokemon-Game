@@ -3,6 +3,7 @@ package ch.epfl.cs107.icmon.area.maps;
 import ch.epfl.cs107.icmon.actor.Door;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
+import ch.epfl.cs107.icmon.actor.npc.ProfessorOak;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
 import ch.epfl.cs107.icmon.gamelogic.events.ICMonEvent;
@@ -39,6 +40,7 @@ public final class Lab extends ICMonArea {
         registerActor(new Background(this));
         registerActor(new Foreground(this));
         registerActor(new Door(this, "town", new DiscreteCoordinates(15,23), new DiscreteCoordinates(6,1),new DiscreteCoordinates(7,1)));
+        registerActor(new ProfessorOak(this, Orientation.DOWN, new DiscreteCoordinates(11, 7), "actors/prof-oak"));
 
     }
 
