@@ -1,10 +1,14 @@
 package ch.epfl.cs107.icmon.actor.pokemon;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import ch.epfl.cs107.icmon.actor.ICMonActor;
+import ch.epfl.cs107.icmon.actor.pokemon.actions.AttackAction;
+import ch.epfl.cs107.icmon.actor.pokemon.actions.RunAction;
 import ch.epfl.cs107.icmon.gamelogic.events.PokemonFightEvent;
+import ch.epfl.cs107.icmon.gamelogic.fights.ICMonFightAction;
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.play.areagame.area.Area;
 import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
@@ -26,10 +30,18 @@ public abstract class Pokemon extends ICMonActor implements ICMonFightableActor{
     final int maxHp;
     int damage;
     Sprite sprite;
-    boolean isDead = false;
+    public boolean isDead = false;
+    public List<ICMonFightAction> fightActions;
+
+    public List<ICMonFightAction> getActions() {
+        return fightActions;
+    }
 
     public Pokemon(String name, int hp, int maxHp, int damage, String spriteName, Area owner, Orientation orientation, DiscreteCoordinates coordinates) {
         super(owner, orientation, coordinates);
+        fightActions = new ArrayList<>();
+        fightActions.add(new RunAction());
+        fightActions.add(new AttackAction());
         this.name = name;
         this.hp = maxHp;
         this.maxHp = maxHp;
@@ -39,6 +51,10 @@ public abstract class Pokemon extends ICMonActor implements ICMonFightableActor{
 
     public PokemonProperties properties(){
         return new PokemonProperties(name, hp, maxHp, damage);
+    }
+
+    public void attackPokemon(Pokemon opponent) {
+        opponent.updateHealth(this.damage);
     }
 
     /**
@@ -55,6 +71,12 @@ public abstract class Pokemon extends ICMonActor implements ICMonFightableActor{
             this.hp = hp;
             this.maxHp = maxHp;
             this.damage = damage;
+        }
+
+
+        public ICMonFightAction getAction() {
+            System.out.println("THIS IS:" + fightActions.get(0).name());
+            return fightActions.get(0);
         }
 
         public String name(){
@@ -103,7 +125,7 @@ public abstract class Pokemon extends ICMonActor implements ICMonFightableActor{
         return false;
     }
 
-    public void updateHealth(){
+    public void updateHealth(int damage){
         hp -= damage;
 
         if (hp < 0){
