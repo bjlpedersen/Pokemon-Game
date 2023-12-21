@@ -11,6 +11,6 @@ public interface ICMonFightAction {
 
     String name();
 
-    boolean doAction(Pokemon target);
+    boolean execute(Pokemon target);
 
 }

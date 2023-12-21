@@ -1,39 +1,30 @@
 package ch.epfl.cs107.icmon.actor;
-
 import ch.epfl.cs107.icmon.ICMon;
-import ch.epfl.cs107.icmon.actor.pokemon.*;
-import ch.epfl.cs107.icmon.gamelogic.events.PokemonFightEvent;
+import ch.epfl.cs107.icmon.actor.npc.Garry;
+import ch.epfl.cs107.icmon.actor.npc.ProfessorOak;
+import ch.epfl.cs107.icmon.actor.pokemon.Bulbizarre;
+import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
+import ch.epfl.cs107.icmon.gamelogic.events.*;
+import ch.epfl.cs107.icmon.gamelogic.fights.ICMonFight;
 import ch.epfl.cs107.icmon.messages.GamePlayMessage;
 import ch.epfl.cs107.icmon.messages.PassDoorMessage;
-import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
 import ch.epfl.cs107.icmon.area.ICMonBehavior;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
-import ch.epfl.cs107.icmon.gamelogic.events.CollectItemEvent;
-import ch.epfl.cs107.icmon.gamelogic.events.EndOfTheGameEvent;
-import ch.epfl.cs107.icmon.gamelogic.events.StartEventAction;
 import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.icmon.messages.SuspendWithEvent;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.actor.Interactor;
-import ch.epfl.cs107.play.areagame.actor.MovableAreaEntity;
 import ch.epfl.cs107.play.areagame.area.Area;
-import ch.epfl.cs107.play.areagame.area.AreaBehavior;
-import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
-import ch.epfl.cs107.play.engine.actor.Animation;
 import ch.epfl.cs107.play.engine.actor.OrientedAnimation;
 import ch.epfl.cs107.play.engine.actor.Sprite;
-import ch.epfl.cs107.play.engine.actor.TextGraphics;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.play.math.Orientation;
-import ch.epfl.cs107.play.math.Vector;
 import ch.epfl.cs107.play.window.Button;
 import ch.epfl.cs107.play.window.Canvas;
 import ch.epfl.cs107.play.window.Keyboard;
 import ch.epfl.cs107.play.engine.actor.Dialog;
-
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,7 +43,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     /**
      * ???
      */
-    private boolean isInDialog = false;
+    private boolean isInDialog = true;
     private final Sprite sprite;
     /**
      * ???
@@ -68,7 +59,13 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     private Dialog dialog;
     private List<Pokemon> collection = new ArrayList<Pokemon>();
     private boolean activeCooldown = false;
+    private CollectItemEvent collectItemEvent;
+    private EndOfTheGameEvent endOfGameEvent;
+    private InteractionWithProfesorOakEvent interactionWithProfesorOakEvent;
+    private IntroductionEvent introductionEvent;
+    private FirstInteractionWithGary firstInteractionWithGary;
 
+    private ICMonFight pauseMenu;
     /**
      * ???
      *
@@ -80,25 +77,40 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     public ICMonPlayer(ICMon icMon, Area owner, Orientation orientation, DiscreteCoordinates coordinates, String spriteName, Pokemon starterPokemon) {
         super(owner, orientation, coordinates);
         sprite = new Sprite(spriteName, 1.f, 1.f, this);
-        collection.add(icMon.getArena().getBulbizarre());
+        collection.add(starterPokemon);
         collection.add(icMon.getArena().getNidoqueen());
         collection.add(icMon.getArena().getLatios());
         orientation = getOrientation();
         landAnimation = new OrientedAnimation("actors/player", MOVE_DURATION, orientation, this);
         waterAnimation = new OrientedAnimation("actors/player_water", MOVE_DURATION, orientation, this);
         currentAnimation = landAnimation;
-
         this.icMon = icMon;
-
         this.gameState = icMon.getGameState(); // get the game state from the ICMon instance
         handler = new ICMonPlayerInteractionHandler();
-
+        this.collectItemEvent = new CollectItemEvent(icMon.getEventManager(), this);
+        this.endOfGameEvent = new EndOfTheGameEvent(this, icMon.getEventManager(), icMon.getShop().getICShopAssistant());
+//        new StartEventAction(icMon.getEventManager(), endOfGameEvent);
+        this.interactionWithProfesorOakEvent = new InteractionWithProfesorOakEvent(this, icMon.getEventManager());
+        this.introductionEvent = new IntroductionEvent(this, icMon.getEventManager());
+        this.firstInteractionWithGary = new FirstInteractionWithGary(this, icMon.getEventManager());
+        dialog = introductionEvent.getDialog();
 
     }
+
+    public ICMonEvent getIntroductionEvent(){
+        return introductionEvent;
+    }
+
+    public ICMonEvent[] getChainEvents(){
+        ICMonEvent[] chainEvents = {interactionWithProfesorOakEvent, collectItemEvent,  firstInteractionWithGary, endOfGameEvent};
+        return chainEvents;
+    }
+
 
     public List<Pokemon> getCollection(){
         return collection;
     }
+
 
     public class ICMonPlayerInteractionHandler implements ICMonInteractionVisitor {
 
@@ -118,28 +130,45 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
             }
         }
 
-
         public void interactWith(ICBall ball, boolean wantsViewInteraction) {
-            if (wantsViewInteraction) {
-                CollectItemEvent event = new CollectItemEvent(ball, icMon.getEventManager(), ICMonPlayer.this);
+            if (wantsViewInteraction && collectItemEvent.getStarted()) {
                 ball.collect();
                 new Dialog("collect_item_event_interaction_with_icshopassistant");
                 new LogAction("CollectItem event completed").perform();
-//                event.onComplete(new StartEventAction(icMon.getEventManager(), new EndOfTheGameEvent(ICMonPlayer.this, icMon.getEventManager())));
+                collectItemEvent.complete();
+            }
+        }
+
+        public void interactWith(ProfessorOak professorOak, boolean wantsViewInteraction) {
+            if (wantsViewInteraction && interactionWithProfesorOakEvent.getStarted()) {
+                isInDialog = true;
+                dialog = interactionWithProfesorOakEvent.perform();
+                icMon.getTown().registerActor(new ICBall(icMon.getTown(),  new DiscreteCoordinates(6, 6)));
+                collection.add(new Bulbizarre(icMon.getTown(), Orientation.DOWN, new DiscreteCoordinates(5, 6)));
+            }
+        }
+
+        public void interactWith(Garry garry, boolean wantCellInteraction) {
+            if (wantCellInteraction && firstInteractionWithGary.getStarted()) {
+                System.out.println("interacting with garry");
+                firstInteractionWithGary.complete();
             }
         }
 
         public void interactWith(Pokemon pokemon, boolean isCellInteraction) {
-            
-                 
                 GamePlayMessage message = new SuspendWithEvent(new PokemonFightEvent(ICMonPlayer.this, icMon.getEventManager(), pokemon, collection.get(0)));
+               icMon.opponent = pokemon;
+               pauseMenu = new ICMonFight(getCollection().get(0), icMon.opponent );
+               icMon.pauseMenu = pauseMenu;
                 gameState.send(message);
+
+                getOwnerArea().unregisterActor(pokemon);
             
         }
 
 
         public void interactWith(ICShopAssistant assistant, boolean wantsViewInteraction) {
-            if (wantsViewInteraction()) {
+            if (wantsViewInteraction() && endOfGameEvent.getStarted()) {
                 isInDialog = true;
                 dialog = new Dialog("end_of_game_event_interaction_with_icshopassistant");
                 //start();
@@ -175,9 +204,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         public void update(float deltaTime) {
            
             Keyboard keyboard = getOwnerArea().getKeyboard();
-            if(activeCooldown){
-
-            }
 
             if (isInDialog) {
                 if (keyboard.get(Keyboard.SPACE).isPressed()) {

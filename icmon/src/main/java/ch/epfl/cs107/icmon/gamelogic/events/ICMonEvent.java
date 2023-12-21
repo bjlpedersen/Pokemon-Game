@@ -26,14 +26,14 @@ public class ICMonEvent implements ICMonInteractionVisitor {
         return completed;
     }
 
-    final void start() {
+    public final void start() {
         if (!started) {
             started = true;
             // Execute he actions needed to start the event
         }
     }
 
-    final void complete() {
+    public void complete() {
         if (!completed && started) {
             completed = true;
             // Execute the actions needed to complete the event
@@ -67,7 +67,9 @@ public class ICMonEvent implements ICMonInteractionVisitor {
     }
 
     public final void onComplete(StartEventAction action) {
-        new UnregisterEventAction(eventManager, this).perform();
+        if (this.completed) {
+            new UnregisterEventAction(eventManager, this).perform();
+        }
     }
 
     final void onSuspension(Action action) {
