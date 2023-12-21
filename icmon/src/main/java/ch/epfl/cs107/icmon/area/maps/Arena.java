@@ -30,7 +30,6 @@ public class Arena extends ICMonArea {
             registerActor(new Background(this));
             registerActor(new Foreground(this));
             registerActor(new Door(this, "town", new DiscreteCoordinates(20,15), new DiscreteCoordinates(4,1),new DiscreteCoordinates(5,1)));
-            registerActor(bulbizarre);
             registerActor(nidoqueen);
             registerActor(latios);
 

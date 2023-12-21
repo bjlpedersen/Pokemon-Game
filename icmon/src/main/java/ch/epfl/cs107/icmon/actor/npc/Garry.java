@@ -37,4 +37,8 @@ public class Garry extends NPCActor implements ICMonFightableActor {
     public boolean isCellInteractable() {
         return false;
     }
+    @Override
+    public boolean mustDisapear(){
+        return true;
+    }
 }

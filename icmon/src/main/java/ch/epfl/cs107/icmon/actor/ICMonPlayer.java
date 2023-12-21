@@ -1,17 +1,13 @@
 package ch.epfl.cs107.icmon.actor;
-
 import ch.epfl.cs107.icmon.ICMon;
 import ch.epfl.cs107.icmon.actor.npc.Garry;
 import ch.epfl.cs107.icmon.actor.npc.ProfessorOak;
 import ch.epfl.cs107.icmon.actor.pokemon.Bulbizarre;
-import ch.epfl.cs107.icmon.actor.pokemon.ICMonFightableActor;
-import ch.epfl.cs107.icmon.actor.pokemon.Latios;
 import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
-import ch.epfl.cs107.icmon.area.ICMonArea;
 import ch.epfl.cs107.icmon.gamelogic.events.*;
+import ch.epfl.cs107.icmon.gamelogic.fights.ICMonFight;
 import ch.epfl.cs107.icmon.messages.GamePlayMessage;
 import ch.epfl.cs107.icmon.messages.PassDoorMessage;
-import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.items.ICBall;
 import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
 import ch.epfl.cs107.icmon.area.ICMonBehavior;
@@ -20,23 +16,15 @@ import ch.epfl.cs107.icmon.handler.ICMonInteractionVisitor;
 import ch.epfl.cs107.icmon.messages.SuspendWithEvent;
 import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.areagame.actor.Interactor;
-import ch.epfl.cs107.play.areagame.actor.MovableAreaEntity;
 import ch.epfl.cs107.play.areagame.area.Area;
-import ch.epfl.cs107.play.areagame.area.AreaBehavior;
-import ch.epfl.cs107.play.areagame.handler.AreaInteractionVisitor;
-import ch.epfl.cs107.play.engine.actor.Animation;
 import ch.epfl.cs107.play.engine.actor.OrientedAnimation;
 import ch.epfl.cs107.play.engine.actor.Sprite;
-import ch.epfl.cs107.play.engine.actor.TextGraphics;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.play.math.Orientation;
-import ch.epfl.cs107.play.math.Vector;
 import ch.epfl.cs107.play.window.Button;
 import ch.epfl.cs107.play.window.Canvas;
 import ch.epfl.cs107.play.window.Keyboard;
 import ch.epfl.cs107.play.engine.actor.Dialog;
-
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -77,6 +65,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     private IntroductionEvent introductionEvent;
     private FirstInteractionWithGary firstInteractionWithGary;
 
+    private ICMonFight pauseMenu;
     /**
      * ???
      *
@@ -168,7 +157,12 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
 
         public void interactWith(Pokemon pokemon, boolean isCellInteraction) {
                 GamePlayMessage message = new SuspendWithEvent(new PokemonFightEvent(ICMonPlayer.this, icMon.getEventManager(), pokemon, collection.get(0)));
+               icMon.opponent = pokemon;
+               pauseMenu = new ICMonFight(getCollection().get(0), icMon.opponent );
+               icMon.pauseMenu = pauseMenu;
                 gameState.send(message);
+
+                getOwnerArea().unregisterActor(pokemon);
             
         }
 
@@ -210,9 +204,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         public void update(float deltaTime) {
            
             Keyboard keyboard = getOwnerArea().getKeyboard();
-            if(activeCooldown){
 
-            }
             if (isInDialog) {
                 if (keyboard.get(Keyboard.SPACE).isPressed()) {
                     dialog.update(deltaTime);

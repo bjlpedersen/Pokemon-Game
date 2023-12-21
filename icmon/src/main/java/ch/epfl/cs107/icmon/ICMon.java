@@ -1,19 +1,12 @@
 package ch.epfl.cs107.icmon;
-import ch.epfl.cs107.icmon.actor.pokemon.Bulbizarre;
-import ch.epfl.cs107.icmon.actor.pokemon.Latios;
 import ch.epfl.cs107.icmon.actor.pokemon.Pokemon;
 import ch.epfl.cs107.icmon.area.maps.*;
-import ch.epfl.cs107.icmon.gamelogic.actions.ResumeEventAction;
-import ch.epfl.cs107.icmon.gamelogic.actions.SuspendEventAction;
 import ch.epfl.cs107.icmon.gamelogic.events.*;
 import ch.epfl.cs107.icmon.gamelogic.fights.ICMonFight;
 import ch.epfl.cs107.icmon.messages.GamePlayMessage;
 import ch.epfl.cs107.icmon.actor.Door;
 import ch.epfl.cs107.icmon.actor.ICMonActor;
 import ch.epfl.cs107.icmon.actor.ICMonPlayer;
-import ch.epfl.cs107.icmon.actor.items.ICBall;
-import ch.epfl.cs107.icmon.actor.items.ICMonItem;
-import ch.epfl.cs107.icmon.actor.npc.ICShopAssistant;
 import ch.epfl.cs107.icmon.area.ICMonArea;
 import ch.epfl.cs107.icmon.gamelogic.actions.LogAction;
 import ch.epfl.cs107.icmon.gamelogic.actions.RegisterinAreaAction;
@@ -22,12 +15,8 @@ import ch.epfl.cs107.play.areagame.actor.Interactable;
 import ch.epfl.cs107.play.io.FileSystem;
 import ch.epfl.cs107.play.math.DiscreteCoordinates;
 import ch.epfl.cs107.play.math.Orientation;
-import ch.epfl.cs107.play.window.Button;
 import ch.epfl.cs107.play.window.Keyboard;
 import ch.epfl.cs107.play.window.Window;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import ch.epfl.cs107.icmon.messages.SuspendWithEvent;
@@ -58,10 +47,11 @@ public final class ICMon extends AreaGame {
     private Arena arena;
     private House house;
     private Shop shop;
-    private ICMonFight pauseMenu;
+    public ICMonFight pauseMenu;
     private boolean isPaused = false;
     private CollectItemEvent collectItemEvent;
     private EndOfTheGameEvent endOfTheGameEvent;
+    public Pokemon opponent;
     
 
     /**
@@ -120,7 +110,7 @@ public final class ICMon extends AreaGame {
             initArea("house");
             new Door(getCurrentArea(), "lab", new DiscreteCoordinates(6,2), new DiscreteCoordinates(15, 24));
 
-            pauseMenu = new ICMonFight(player.getCollection().get(0), arena.getLatios());
+            pauseMenu = new ICMonFight(player.getCollection().get(0), opponent);
 //            player.setIsInDialog(true);
             createFightEvent(arena.getBulbizarre(), arena.getLatios(), player, eventManager);
             this.collectItemEvent = new CollectItemEvent(eventManager, player);
@@ -174,11 +164,9 @@ public final class ICMon extends AreaGame {
         for (GamePlayMessage message : mailbox) {
             if (message instanceof SuspendWithEvent) {
 
-//                SuspendEventAction suspendEventAction = new SuspendEventAction(message, activeEvents);
-//                suspendEventAction.perform();
                 this.setPauseMenu(pauseMenu);
                 pauseMenu.update(deltaTime);              
-//                new ResumeEventAction(message, suspendEventAction.getPausedEvents()).perform();
+//
             }
             message.process(this);
 
