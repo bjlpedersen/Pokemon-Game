@@ -15,4 +15,6 @@ public class Latios extends Pokemon {
     public void draw(Canvas canvas) {
         sprite.draw(canvas);
     }
+
+
 }

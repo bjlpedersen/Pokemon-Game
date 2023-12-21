@@ -51,7 +51,7 @@ public final class ICMon extends AreaGame {
     private boolean isPaused = false;
     private CollectItemEvent collectItemEvent;
     private EndOfTheGameEvent endOfTheGameEvent;
-    public Pokemon opponent;
+    private Pokemon opponent;
     
 
     /**
@@ -72,6 +72,14 @@ public final class ICMon extends AreaGame {
 
     }
 
+    public void setOpponent(Pokemon opponent){
+        this.opponent = opponent;
+    }
+
+    public Pokemon getOpponent(){
+        return this.opponent;
+    }
+
     public Arena getArena(){
         return arena;
     }
@@ -82,6 +90,9 @@ public final class ICMon extends AreaGame {
 
     public Shop getShop(){
         return shop;
+    }
+    public House getHouse(){
+        return house;
     }
 
     public CollectItemEvent getCollectItemEvent(){
@@ -163,7 +174,6 @@ public final class ICMon extends AreaGame {
         events();
         for (GamePlayMessage message : mailbox) {
             if (message instanceof SuspendWithEvent) {
-
                 this.setPauseMenu(pauseMenu);
                 pauseMenu.update(deltaTime);              
 //

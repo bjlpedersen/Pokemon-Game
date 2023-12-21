@@ -30,7 +30,7 @@ public abstract class Pokemon extends ICMonActor implements ICMonFightableActor{
     final int maxHp;
     int damage;
     Sprite sprite;
-    public boolean isDead = false;
+    private boolean isDead = false;
     public List<ICMonFightAction> fightActions;
 
     public List<ICMonFightAction> getActions() {
@@ -48,6 +48,11 @@ public abstract class Pokemon extends ICMonActor implements ICMonFightableActor{
         this.damage = damage;
         this.sprite = new RPGSprite("pokemon/" + spriteName, 1, 1, this);
     }
+
+    public boolean isDead(){
+        return isDead;
+    }
+
 
     public PokemonProperties properties(){
         return new PokemonProperties(name, hp, maxHp, damage);

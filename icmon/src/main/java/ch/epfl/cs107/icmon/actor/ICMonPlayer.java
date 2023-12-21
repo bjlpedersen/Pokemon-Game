@@ -149,21 +149,33 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         }
 
         public void interactWith(Garry garry, boolean wantCellInteraction) {
+//            if (wantCellInteraction) {
             if (wantCellInteraction && firstInteractionWithGary.getStarted()) {
+                Pokemon garyOpponent = garry.getCollection(0);
+                GamePlayMessage message = new SuspendWithEvent(new PokemonFightEvent(ICMonPlayer.this, icMon.getEventManager(), garyOpponent, collection.get(0)));
                 System.out.println("interacting with garry");
+                icMon.setOpponent(garyOpponent);
+                ICMonFight fight = new ICMonFight(getCollection().get(0), garyOpponent);
+                pauseMenu = fight;
+                icMon.pauseMenu = pauseMenu;
+                gameState.send(message);
+                garyOpponent.updateHealth(0);
+                if (fight.opponentIsDead()) {
+                    icMon.getHouse().unregisterActor(garry);
+                }
                 firstInteractionWithGary.complete();
+
+//                }
             }
         }
 
         public void interactWith(Pokemon pokemon, boolean isCellInteraction) {
-                GamePlayMessage message = new SuspendWithEvent(new PokemonFightEvent(ICMonPlayer.this, icMon.getEventManager(), pokemon, collection.get(0)));
-               icMon.opponent = pokemon;
-               pauseMenu = new ICMonFight(getCollection().get(0), icMon.opponent );
-               icMon.pauseMenu = pauseMenu;
-                gameState.send(message);
-
-                getOwnerArea().unregisterActor(pokemon);
-            
+            GamePlayMessage message = new SuspendWithEvent(new PokemonFightEvent(ICMonPlayer.this, icMon.getEventManager(), pokemon, collection.get(0)));
+            icMon.setOpponent(pokemon);
+            pauseMenu = new ICMonFight(getCollection().get(0), icMon.getOpponent() );
+            icMon.pauseMenu = pauseMenu;
+            gameState.send(message);
+            getOwnerArea().unregisterActor(pokemon);
         }
 
 

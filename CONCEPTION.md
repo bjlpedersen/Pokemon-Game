@@ -1,0 +1,1 @@
+Conception conforme a l'énonce

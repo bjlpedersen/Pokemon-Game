@@ -28,7 +28,7 @@ public class ICMonChainedEvent extends ICMonEvent {
             new StartEventAction(eventManager, chainedEvents[2]);
         }
         if (chainedEvents[2].getCompleted()) {
-            System.out.println("garry executed");
+//            System.out.println("garry executed");
             new StartEventAction(eventManager, chainedEvents[3]);
         }
     }

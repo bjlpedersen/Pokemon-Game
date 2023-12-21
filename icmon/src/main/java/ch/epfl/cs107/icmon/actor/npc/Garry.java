@@ -13,9 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Garry extends NPCActor implements ICMonFightableActor {
-    Pokemon[] collection = {new Nidoqueen(this.getOwnerArea(), Orientation.DOWN, new DiscreteCoordinates(5, 5))};
+    private Pokemon[] collection = {new Nidoqueen(this.getOwnerArea(), Orientation.DOWN, new DiscreteCoordinates(5, 5))};
     public Garry(Area area, Orientation orientation, DiscreteCoordinates coordinates, String spriteName) {
         super(area, orientation, coordinates, spriteName);
+    }
+
+    public Pokemon getCollection(int index) {
+        return collection[index];
     }
 
     @Override
@@ -37,8 +41,5 @@ public class Garry extends NPCActor implements ICMonFightableActor {
     public boolean isCellInteractable() {
         return false;
     }
-    @Override
-    public boolean mustDisapear(){
-        return true;
-    }
+
 }

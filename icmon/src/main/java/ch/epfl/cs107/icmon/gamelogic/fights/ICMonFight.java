@@ -28,6 +28,7 @@ public class ICMonFight extends PauseMenu {
     private Pokemon opponent;
     private ICMonFightAction currentAction;
     private ICMonFightArenaGraphics arena;
+    private boolean opponentIsDead = false;
 
     
     
@@ -51,6 +52,10 @@ public class ICMonFight extends PauseMenu {
 
     }
 
+    public boolean opponentIsDead() {
+        return opponentIsDead;
+    }
+
     public boolean isPaused() {
         
         return counter > 0;
@@ -64,27 +69,14 @@ public class ICMonFight extends PauseMenu {
 public void drawMenu(Canvas canvas) {
         ICMonFightArenaGraphics arena = new ICMonFightArenaGraphics(CAMERA_SCALE_FACTOR,  opponent.properties(), player.properties());
 
-//        if (currentState == States.INTRODUCTION) {
-//            arena.setInteractionGraphics(new ICMonFightTextGraphics(CAMERA_SCALE_FACTOR, "Welcome to the Fight!"));
-//        } else if (currentState == States.CONCLUSION) {
-//            if (opponent.isDead) {
-//                arena.setInteractionGraphics(new ICMonFightTextGraphics(CAMERA_SCALE_FACTOR, "You won the fight!"));
-//            } else if (player.isDead) {
-//                arena.setInteractionGraphics(new ICMonFightTextGraphics(CAMERA_SCALE_FACTOR, "The opponent won the fight!"));
-//            }
-//            else {
-//                arena.setInteractionGraphics(new ICMonFightTextGraphics(CAMERA_SCALE_FACTOR, "The player decided not to continue the fight!"));
-//            }
-//        }
-
 
     if (currentState == States.INTRODUCTION) {
         arena.setInteractionGraphics(new ICMonFightTextGraphics(CAMERA_SCALE_FACTOR, "Welcome to the Fight!"));
     } else if (currentState == States.ACTION_SELECTION_PLAYER) {
         arena.setInteractionGraphics(actionSelectionGraphics);
-    } else if(currentState == States.CONCLUSION && player.isDead) {
+    } else if(currentState == States.CONCLUSION && player.isDead()) {
         arena.setInteractionGraphics(new ICMonFightTextGraphics(CAMERA_SCALE_FACTOR, "The Opponent has Won the Fight"));
-    } else if(currentState == States.CONCLUSION && opponent.isDead){
+    } else if(currentState == States.CONCLUSION && opponent.isDead()){
         arena.setInteractionGraphics(new ICMonFightTextGraphics(CAMERA_SCALE_FACTOR, "The Player has Won the Fight"));
     } else if(currentState == States.PLAYER_ACTION){
         arena.setInteractionGraphics(new ICMonFightTextGraphics(CAMERA_SCALE_FACTOR, "Fighting opponent"));
@@ -126,7 +118,8 @@ public void drawMenu(Canvas canvas) {
                     currentState = States.CONCLUSION;
                 } else {
                     player.attackPokemon(opponent);
-                    if (opponent.isDead) {
+                    if (opponent.isDead()) {
+                        opponentIsDead = true;
                         currentState = States.CONCLUSION;
                     } else {
                         currentState = States.OPPONENT_ACTION;
@@ -135,7 +128,7 @@ public void drawMenu(Canvas canvas) {
                 break;
             case OPPONENT_ACTION:
                 opponent.attackPokemon(player);
-                if (player.isDead) {
+                if (player.isDead()) {
                     currentState = States.CONCLUSION;
                 } else {
                     currentState = States.ACTION_SELECTION_PLAYER;
