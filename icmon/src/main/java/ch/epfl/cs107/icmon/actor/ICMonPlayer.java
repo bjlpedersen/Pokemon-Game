@@ -48,7 +48,6 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
     /**
      * ???
      */
-    private float hp;
     private ICMonPlayerInteractionHandler handler;
     private OrientedAnimation currentAnimation;
     private final OrientedAnimation landAnimation;
@@ -144,7 +143,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
                 isInDialog = true;
                 dialog = interactionWithProfesorOakEvent.perform();
                 icMon.getTown().registerActor(new ICBall(icMon.getTown(),  new DiscreteCoordinates(6, 6)));
-                collection.add(new Bulbizarre(icMon.getTown(), Orientation.DOWN, new DiscreteCoordinates(5, 6)));
+                collection.add(new Bulbizarre(getOwnerArea(), Orientation.DOWN, new DiscreteCoordinates(5, 6)));
             }
         }
 
@@ -155,12 +154,11 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
                 GamePlayMessage message = new SuspendWithEvent(new PokemonFightEvent(ICMonPlayer.this, icMon.getEventManager(), garyOpponent, collection.get(0)));
                 System.out.println("interacting with garry");
                 icMon.setOpponent(garyOpponent);
-                ICMonFight fight = new ICMonFight(getCollection().get(0), garyOpponent);
-                pauseMenu = fight;
+                pauseMenu = new ICMonFight(getCollection().get(0), garyOpponent);;
                 icMon.pauseMenu = pauseMenu;
                 gameState.send(message);
                 garyOpponent.updateHealth(0);
-                if (fight.opponentIsDead()) {
+                if (garry.getCollection(0).isDead()) {
                     icMon.getHouse().unregisterActor(garry);
                 }
                 firstInteractionWithGary.complete();
@@ -304,7 +302,7 @@ public final class ICMonPlayer extends ICMonActor implements Interactor, Interac
         /**
          * ???
          *
-         * @param v                 (AreaInteractionVisitor) : the visitor
+         * @param v (AreaInteractionVisitor) : the visitor
          * @param isCellInteraction ???
          */
 
